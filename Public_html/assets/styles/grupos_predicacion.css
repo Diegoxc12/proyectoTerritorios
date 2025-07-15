@@ -338,7 +338,7 @@
         }
 
         button[type="submit"] {
-            background-color: #0F1435;
+            background-color: var(--color-primary);
             color: var(--color-white);
             border: none;
             padding: 1rem 2rem;
@@ -349,12 +349,14 @@
             transition: var(--transition);
             position: relative;
             overflow: hidden;
-            margin-top: 1rem;
+
             box-shadow: var(--shadow-md);
             width: 100%; /* Asegura que el botón de submit sea ancho completo */
+            
         }
 
         button[type="submit"]:hover {
+            background-color: var(--color-secondary);
             transform: translateY(-2px);
             box-shadow: var(--shadow-xl);
         }
@@ -370,13 +372,13 @@
             left: -100%;
             width: 100%;
             height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
             transition: left 0.5s;
         }
 
         button[type="submit"]:hover::before {
             left: 100%;
         }
+
 
         /* Divisor */
         .section-divider {
@@ -511,8 +513,7 @@
         /* Alineación de los botones de acción para el formulario */
         form button.btn-secondary,
         form button.btn-primary {
-            align-self: center; /* Centra los botones en el formulario */
-            width: fit-content; /* Ajusta el ancho al contenido */
+            align-self: flex-start; /* Centra los botones en el formulario */
             padding-left: 2rem;
             padding-right: 2rem;
             margin: 0;

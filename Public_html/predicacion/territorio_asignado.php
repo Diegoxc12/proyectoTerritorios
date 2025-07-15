@@ -10,11 +10,114 @@ if (!isset($_SESSION['logged_in']) || $_SESSION['logged_in'] !== true) {
     exit;
 }
 
+if (isset($_GET['obtener_detalles']) && isset($_GET['id_recuadro'])) {
+    $id_recuadro = intval($_GET['id_recuadro']);
+    
+    try {
+        $sql_detalles = "SELECT esta_casa, no_visitar, descripcion_casa, es_estudio, descripcion_estudio, id_propiedad, numero_propiedad FROM recuadros WHERE id_recuadro = :id_recuadro";
+        $stmt_detalles = $conn->prepare($sql_detalles);
+        $stmt_detalles->bindParam(':id_recuadro', $id_recuadro, PDO::PARAM_INT);
+        $stmt_detalles->execute();
+        $detalles = $stmt_detalles->fetch(PDO::FETCH_ASSOC);
+        
+        header('Content-Type: application/json');
+        if ($detalles) {
+            echo json_encode(['success' => true, 'detalles' => $detalles]);
+        } else {
+            echo json_encode(['success' => false, 'error' => 'No se encontraron detalles']);
+        }
+        exit;
+    } catch (PDOException $e) {
+        header('Content-Type: application/json');
+        echo json_encode(['success' => false, 'error' => 'Error de base de datos: ' . $e->getMessage()]);
+        exit;
+    }
+}
+
+if (isset($_GET['obtener_detalles_unidad']) && isset($_GET['id_recuadro'])) {
+    $id_recuadro = intval($_GET['id_recuadro']);
+    
+    try {
+        $sql_unidad = "SELECT * FROM unidades WHERE id_recuadro = :id_recuadro";
+        $stmt_unidad = $conn->prepare($sql_unidad);
+        $stmt_unidad->bindParam(':id_recuadro', $id_recuadro, PDO::PARAM_INT);
+        $stmt_unidad->execute();
+        $detalles_unidad = $stmt_unidad->fetch(PDO::FETCH_ASSOC);
+        
+        header('Content-Type: application/json');
+        if ($detalles_unidad) {
+            echo json_encode(['success' => true, 'detalles' => $detalles_unidad]);
+        } else {
+            echo json_encode(['success' => false, 'error' => 'No se encontraron detalles para la unidad.']);
+        }
+        exit;
+    } catch (PDOException $e) {
+        header('Content-Type: application/json');
+        echo json_encode(['success' => false, 'error' => 'Error de base de datos al obtener detalles de la unidad: ' . $e->getMessage()]);
+        exit;
+    }
+}
+
+if (isset($_GET['obtener_unidades']) && isset($_GET['id_recuadro'])) {
+    header('Content-Type: application/json');
+    $id_recuadro = intval($_GET['id_recuadro']);
+
+    try {
+        $sql_get_unidades = "SELECT * FROM unidades WHERE id_recuadro = :id_recuadro ORDER BY id_unidad";
+        $stmt = $conn->prepare($sql_get_unidades);
+        $stmt->bindParam(':id_recuadro', $id_recuadro, PDO::PARAM_INT);
+        $stmt->execute();
+        $unidades = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        
+        echo json_encode(['success' => true, 'unidades' => $unidades]);
+        exit;
+    } catch (PDOException $e) {
+        echo json_encode(['success' => false, 'error' => 'Error de base de datos en unidad: ' . $e->getMessage()]);
+        exit;
+    }
+}
+
+if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['guardar_unidad'])) {
+    header('Content-Type: application/json');
+
+    try {
+        $id_recuadro = intval($_POST['id_recuadro']);
+        $nombre_unidad = $_POST['tipo_unidad'] ?? '';
+        $descripcion_unidad = $_POST['descripcion_tipo'] ?? '';
+
+        if (empty($id_recuadro) || empty($nombre_unidad)) {
+            echo json_encode(['success' => false, 'error' => 'Faltan datos obligatorios']);
+            exit;
+        }
+
+        $sql_insert_unidad = "INSERT INTO unidades 
+                             (id_recuadro, nombre_unidad, descripcion_unidad) 
+                             VALUES 
+                             (:id_recuadro, :nombre_unidad, :descripcion_unidad)";
+        $stmt = $conn->prepare($sql_insert_unidad);
+        $stmt->bindParam(':id_recuadro', $id_recuadro, PDO::PARAM_INT);
+        $stmt->bindParam(':nombre_unidad', $nombre_unidad, PDO::PARAM_STR);
+        $stmt->bindParam(':descripcion_unidad', $descripcion_unidad, PDO::PARAM_STR);
+
+        if ($stmt->execute()) {
+            echo json_encode(['success' => true, 'message' => 'Unidad guardada correctamente']);
+        } else {
+            echo json_encode(['success' => false, 'error' => 'Error al guardar la unidad']);
+        }
+        exit;
+    } catch (PDOException $e) {
+        echo json_encode(['success' => false, 'error' => 'Error de base de datos en unidad: ' . $e->getMessage()]);
+        exit;
+    }
+}
+
+
 $rol_usuario = $_SESSION['rol_usuario'];
 $feedback_mensaje = "";
 $feedback_tipo = "";
 
 $id_imagen_url = isset($_GET['id_imagen']) ? intval($_GET['id_imagen']) : 0;
+
 $nombre_archivo_imagen_solo = "sin_imagen.jpg"; 
 
 if ($id_imagen_url > 0) {
@@ -44,30 +147,6 @@ if ($id_imagen_url > 0) {
         }
     } else {
         $mensaje_bienvenida = "Error: Conexión DB no disponible";
-    }
-}
-
-if (isset($_GET['obtener_detalles']) && isset($_GET['id_recuadro'])) {
-    $id_recuadro = intval($_GET['id_recuadro']);
-    
-    try {
-        $sql_detalles = "SELECT esta_casa, no_visitar, descripcion_casa, es_estudio, descripcion_estudio, id_propiedad, numero_propiedad FROM recuadros WHERE id_recuadro = :id_recuadro";
-        $stmt_detalles = $conn->prepare($sql_detalles);
-        $stmt_detalles->bindParam(':id_recuadro', $id_recuadro, PDO::PARAM_INT);
-        $stmt_detalles->execute();
-        $detalles = $stmt_detalles->fetch(PDO::FETCH_ASSOC);
-        
-        header('Content-Type: application/json');
-        if ($detalles) {
-            echo json_encode(['success' => true, 'detalles' => $detalles]);
-        } else {
-            echo json_encode(['success' => false, 'error' => 'No se encontraron detalles']);
-        }
-        exit;
-    } catch (PDOException $e) {
-        header('Content-Type: application/json');
-        echo json_encode(['success' => false, 'error' => 'Error de base de datos: ' . $e->getMessage()]);
-        exit;
     }
 }
 
@@ -112,10 +191,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['guardar_recuadro'])) {
 
         $stmt->bindParam(':id_imagen', $id_imagen_url, PDO::PARAM_INT);
         $stmt->bindParam(':numero_propiedad', $numero_propiedad, PDO::PARAM_STR);
-    
         $stmt->bindParam(':descripcion_casa', $descripcion_casa, PDO::PARAM_STR);
-        
-        
         $stmt->bindParam(':ancho', $ancho, PDO::PARAM_INT);
         $stmt->bindParam(':alto', $alto, PDO::PARAM_INT);
 
@@ -142,15 +218,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['guardar_recuadro'])) {
     }
 }
 
-// Actuaklizar casa
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['actualizar_recuadro'])) {
     $id_recuadro = intval($_POST['id_recuadro']);
     $numero_propiedad = $_POST['numero_propiedad'] ?? '';
     $descripcion_casa = $_POST['descripcion_casa'] ?? '';
     
-    // Manejo del nuevo campo radio button
     $esta_casa = isset($_POST['esta_casa']) ? intval($_POST['esta_casa']) : 0;
-    
     $no_visitar = isset($_POST['no_visitar']) ? 1 : 0;
     $es_estudio = isset($_POST['es_estudio']) ? 1 : 0;
     $descripcion_estudio = $_POST['descripcion_estudio'] ?? '';
@@ -217,6 +290,30 @@ $mensaje_bienvenida = "Territorio " . $id_imagen_url;
         #main-image { pointer-events: auto; }
         .saved-shape { cursor: pointer; pointer-events: all; }
         .saved-shape:hover { stroke-width: 2; stroke: black; }
+
+        :root {
+            --color-primary: #0F1435;
+            --color-secondary: #3182CE;
+            --color-accent: #4F46E5;
+            --color-success: #10B981;
+            --color-error: #EF4444;
+            --color-warning: #F59E0B;
+            --color-text: #1F2937;
+            --color-text-light: #6B7280;
+            --color-bg: #F9FAFB;
+            --color-white: #FFFFFF;
+            --color-border: #E5E7EB;
+            --color-border-focus: #3B82F6;
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 6px 6px 10px 10px rgba(0, 0, 0, 0.05);
+            --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            --radius-sm: 6px;
+            --radius-md: 8px;
+            --radius-lg: 12px;
+            --radius-xl: 16px;
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
 
         main {
             margin: 15px;
@@ -287,6 +384,9 @@ $mensaje_bienvenida = "Territorio " . $id_imagen_url;
                 align-self: center;
                 min-width: 200px;
             }
+            #modal-overlay {
+                display: none;
+            }
         }
 
         /* ==========================================================================
@@ -354,6 +454,10 @@ $mensaje_bienvenida = "Territorio " . $id_imagen_url;
                 pointer-events: none;
                 z-index: -1;
             }
+
+            #modal-overlay {
+                display: none;
+            }
         }
 
         /* ==========================================================================
@@ -412,6 +516,9 @@ $mensaje_bienvenida = "Territorio " . $id_imagen_url;
                 font-size: 1rem;
                 width: 100%;
             }
+            #modal-overlay {
+                display: none;
+            }
         }
 
         /* ==========================================================================
@@ -463,6 +570,9 @@ $mensaje_bienvenida = "Territorio " . $id_imagen_url;
             
             .desktop-only {
                 display: block;
+            }
+            #modal-overlay {
+                display: none;
             }
         }
 
@@ -559,6 +669,7 @@ $mensaje_bienvenida = "Territorio " . $id_imagen_url;
             border-top: 5px solid var(--color-secondary, #3B82F6);
             z-index: 1001;
             animation: fadeIn 0.4s ease-out; /* Animación de entrada */
+
         }
 
          #info-panel {
@@ -580,6 +691,7 @@ $mensaje_bienvenida = "Territorio " . $id_imagen_url;
             overflow-y: auto;
             display: none; 
             border-top: solid 4px #3182CE;
+            padding-top: 0;
         }
         /* Botón para cerrar el panel */
         #btn-cerrar-panel {
@@ -595,6 +707,7 @@ $mensaje_bienvenida = "Territorio " . $id_imagen_url;
             line-height: 1;
             padding: 0;
             transition: var(--transition, all 0.3s ease);
+            z-index: 1003; /* Aumentado */
         }
 
         #btn-cerrar-panel:hover {
@@ -607,9 +720,20 @@ $mensaje_bienvenida = "Territorio " . $id_imagen_url;
             font-size: 1.8rem;
             font-weight: 700;
             color: var(--color-primary, #0F1435);
-            margin: 0 0 1.5rem 0;
             text-align: center;
             line-height: 1.2;
+            background-color: #ffffffff;
+            position: sticky;
+            top: 0; /* Fija el título en la parte superior del panel */
+            padding: 15px 0;
+            margin: 0;
+            z-index: 1002; /* Encima del panel pero debajo del botón */
+            padding-top: 20px;
+            
+        }
+
+        #scrollable-content {
+            margin-top: 10px;
         }
 
         /* Contenedor para los campos del formulario */
@@ -666,7 +790,7 @@ $mensaje_bienvenida = "Territorio " . $id_imagen_url;
 
         .checkbox-group-single:hover {
             transform: translateY(-1px);
-            box-shadow: var(--shadow-sm, 0 5px 10px 0 rgba(0, 0, 0, 0.32));
+            box-shadow: 0 5px 10px 0 rgba(0, 0, 0, 0.32);
         }
 
         .checkbox-group-single label {
@@ -691,36 +815,40 @@ $mensaje_bienvenida = "Territorio " . $id_imagen_url;
 
         /* Botón de envío/actualización */
         #btn-actualizar-recuadro {
-            background-color: #0F1435;
-            color: var(--color-white, #FFFFFF);
+            background-color: var(--color-primary);
+            color: var(--color-white);
             border: none;
             padding: 1rem 2rem;
             font-size: 1.1rem;
             font-weight: 600;
-            border-radius: var(--radius-md, 0.5rem);
+            border-radius: var(--radius-md);
             cursor: pointer;
-            transition: var(--transition, all 0.3s ease);
+            transition: var(--transition);
             position: relative;
             overflow: hidden;
-            margin-top: 1.5rem; /* Espacio antes del botón */
-            box-shadow: var(--shadow-md, 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06));
-            width: 100%;
+
+            box-shadow: var(--shadow-md);
+            width: 100%; /* Asegura que el botón de submit sea ancho completo */
+            
         }
 
         #btn-actualizar-recuadro:hover {
+            background-color: var(--color-secondary);
             transform: translateY(-2px);
-            box-shadow: var(--shadow-xl, 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04));
+            box-shadow: var(--shadow-xl);
         }
 
-        /* Animación de brillo en el botón al pasar el mouse */
-        #btn-actualizar-recuadro::before {
+        #btn-actualizar-recuadro:active {
+            transform: translateY(0);
+        }
+
+        #btn-actualizar-recuadro:before {
             content: '';
             position: absolute;
             top: 0;
             left: -100%;
             width: 100%;
             height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
             transition: left 0.5s;
         }
 
@@ -728,6 +856,48 @@ $mensaje_bienvenida = "Territorio " . $id_imagen_url;
             left: 100%;
         }
 
+
+        #btn-anadir-unidad {
+            background-color: var(--color-primary);
+            color: var(--color-white);
+            border: none;
+            padding: 1rem 2rem;
+            font-size: 1.1rem;
+            font-weight: 600;
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+
+            box-shadow: var(--shadow-md);
+            width: 100%; /* Asegura que el botón de submit sea ancho completo */
+            
+        }
+
+        #btn-anadir-unidad :hover {
+            background-color: var(--color-secondary);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-xl);
+        }
+
+        #btn-anadir-unidad :active {
+            transform: translateY(0);
+        }
+
+        #btn-anadir-unidad :before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            transition: left 0.5s;
+        }
+
+        #btn-anadir-unidad :hover::before {
+            left: 100%;
+        }
 
         .recuadro {
             position: absolute;
@@ -935,79 +1105,196 @@ $mensaje_bienvenida = "Territorio " . $id_imagen_url;
         }
         
         .check {
-    cursor: pointer;
-    position: relative;
-    width: 22px;
-    height: 22px;
-    -webkit-tap-highlight-color: transparent;
-    transform: translate3d(0, 0, 0);
-}
+            cursor: pointer;
+            position: relative;
+            width: 22px;
+            height: 22px;
+            -webkit-tap-highlight-color: transparent;
+            transform: translate3d(0, 0, 0);
+        }
 
-.check:before {
-    content: "";
-    position: absolute;
-    top: -15px;
-    left: -15px;
-    width: 48px;
-    height: 48px;
-    border-radius: 50%;
-    opacity: 0;
-    transition: opacity 0.2s ease;
-}
+        .check:before {
+            content: "";
+            position: absolute;
+            top: -15px;
+            left: -15px;
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            opacity: 0;
+            transition: opacity 0.2s ease;
+        }
 
-.check svg {
-    position: relative;
-    z-index: 1;
-    fill: none;
-    stroke-linecap: round;
-    stroke-linejoin: round;
-    stroke: #c8ccd4;
-    stroke-width: 1.5;
-    transform: translate3d(0, 0, 0);
-    transition: all 0.2s ease;
-}
+        .check svg {
+            position: relative;
+            z-index: 1;
+            fill: none;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            stroke: #c8ccd4;
+            stroke-width: 1.5;
+            transform: translate3d(0, 0, 0);
+            transition: all 0.2s ease;
+        }
 
-.check svg path {
-    stroke-dasharray: 60;
-    stroke-dashoffset: 0;
-}
+        .check svg path {
+            stroke-dasharray: 60;
+            stroke-dashoffset: 0;
+        }
 
-.check svg polyline {
-    stroke-dasharray: 22;
-    stroke-dashoffset: 66;
-}
+        .check svg polyline {
+            stroke-dasharray: 22;
+            stroke-dashoffset: 66;
+        }
 
-.check:hover:before {
-    opacity: 1;
-}
+        .check:hover:before {
+            opacity: 1;
+        }
 
-.check:hover svg {
-    stroke: #3498db;
-}
+        .check:hover svg {
+            stroke: #3498db;
+        }
 
-/* ✅ Aplica a todos los inputs con .custom-radio que estén checked */
-input.custom-radio:checked + .check svg {
-    stroke: #2ecc71;
-}
+        /* ✅ Aplica a todos los inputs con .custom-radio que estén checked */
+        input.custom-radio:checked + .check svg {
+            stroke: #2ecc71;
+        }
 
-input.custom-radio:checked + .check svg path {
-    stroke-dashoffset: 60;
-    transition: all 0.3s linear;
-}
+        input.custom-radio:checked + .check svg path {
+            stroke-dashoffset: 60;
+            transition: all 0.3s linear;
+        }
 
-input.custom-radio:checked + .check svg polyline {
-    stroke-dashoffset: 42;
-    transition: all 0.2s linear;
-    transition-delay: 0.15s;
-}
+        input.custom-radio:checked + .check svg polyline {
+            stroke-dashoffset: 42;
+            transition: all 0.2s linear;
+            transition-delay: 0.15s;
+        }
 
-/* Estilo visual cuando se selecciona el contenedor (opcional) */
-.radio-option.selected {
-    background-color: rgba(46, 204, 113, 0.15);
-    border: 1px solid rgba(46, 204, 113, 0.3);
-}
+        /* Estilo visual cuando se selecciona el contenedor (opcional) */
+        .radio-option.selected {
+            background-color: rgba(46, 204, 113, 0.15);
+            border: 1px solid rgba(46, 204, 113, 0.3);
+        }
+            /* Contenedor de la nueva unidad */
+        .form-container {
+            background-color: var(--color-white);
+            border-radius: var(--radius-md);
+            box-shadow: 0 5px 10px 0 rgba(0, 0, 0, 0.32);
+            overflow: hidden;
+            margin-bottom: 20px;
+            margin-top: 20px;
+        }
 
-    </style>
+        #form-nueva-unidad {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem;
+            border-bottom: 1px solid var(--color-border);
+        }
+
+        #form-nueva-unidad h3 {
+            margin: 0;
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+
+        #btn-cerrar-unidad {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #666;
+            padding: 0.25rem;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: var(--transition);
+        }
+
+        #btn-cerrar-unidad:hover {
+            background-color: #f3f4f6;
+            color: #1f2937;
+        }
+
+        #form-nueva-unidad-contenido {
+            padding: 1rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        #form-nueva-unidad-contenido p {
+            font-size: 1rem;
+            font-weight: 500;
+            color: var(--color-text);
+            margin: 0 0 4px 0;
+        }
+
+        #form-nueva-unidad-contenido input[type="text"] {
+            width: 100%;
+            box-sizing: border-box;
+            padding: 0.875rem 1rem;
+            border: 2px solid var(--color-border);
+            border-radius: var(--radius-md);
+            font-size: 1rem;
+            transition: var(--transition);
+            background-color: var(--color-white);
+            color: var(--color-text);
+            font-family: inherit;
+        }
+
+        #form-nueva-unidad-contenido input[type="text"]:focus {
+            outline: none;
+            border-color: var(--color-border-focus);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        #form-nueva-unidad-contenido input[type="text"]::placeholder {
+            color: var(--color-text-light);
+            opacity: 1;
+        }
+
+        .button-group {
+            margin-top: 0.5rem;
+            display: flex;
+            gap: 0.75rem;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 0.75rem 1rem;
+            border: none;
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 500;
+            transition: var(--transition);
+            font-family: inherit;
+            text-align: center;
+        }
+
+        .btn-primary {
+            background: #28a745;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #218838;
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #5a6268;
+        }    </style>
 </head>
 <body>
     <?php include('../includes/header_menu.php'); ?>
@@ -1064,8 +1351,9 @@ input.custom-radio:checked + .check svg polyline {
             <span id="info-id-recuadro-display"></span>
             
             <h2>Casa <span id="numero-propiedad-display">...</span></h2>
-
-            <input type="hidden" name="actualizar_recuadro" value="1">
+            
+            <div id="scrollable-content">
+                <input type="hidden" name="actualizar_recuadro" value="1">
             <input type="hidden" id="info-id-recuadro-input" name="id_recuadro">
 
             <div id="info-details">
@@ -1134,12 +1422,22 @@ input.custom-radio:checked + .check svg polyline {
                 
                 <div id="contenedor-estudio" style="display: none;">
                     <p><strong>¿De quien es el estudio?</strong></p>
-                    <input type="text" id="info-descripcion-estudio" name="descripcion_estudio" placeholder="Descripción del estudio">
+                    <input type="text" id="info-descripcion-estudio" name="descripcion_estudio" placeholder="Nombre de quien le da estudio">
+                </div>
+                <div style="margin-top: 20px;">
+                    <div id="lista-unidades-container"></div>
                 </div>
 
-
             </div>
-            <button type="submit" id="btn-actualizar-recuadro" style="margin-top: 20px;">Actualizar</button>
+            <button type="submit" id="btn-actualizar-recuadro" style="margin-top: 20px;">
+                Actualizar
+            </button>
+
+            <button onclick= "añadirUnidad()" type="button" id="btn-anadir-unidad" style="margin-top: 20px;">
+                Añadir timbre, etc...
+            </button>
+            </div>
+            
             </form>
         
 
@@ -1171,11 +1469,11 @@ input.custom-radio:checked + .check svg polyline {
             <h2>Significado de los Colores</h2>
             <div class="color-meaning-item">
                 <div class="color-box color-gray"></div>
-                <span>Recuadro sin asignar</span>
+                <span>No en casa</span>
             </div>
             <div class="color-meaning-item">
                 <div class="color-box color-green"></div>
-                <span>Casa visitada</span>
+                <span>Si en casa</span>
             </div>
             <div class="color-meaning-item">
                 <div class="color-box color-red"></div>
@@ -1203,7 +1501,132 @@ input.custom-radio:checked + .check svg polyline {
     </main>
 
     <script>
+
+    function añadirUnidad() {
+
+        const contenedorUnidad = document.createElement('div');
+        contenedorUnidad.id = 'contenedor-nueva-unidad';
+        
+
+        contenedorUnidad.innerHTML = `
+            <div class="form-container">
+            <div id="form-nueva-unidad">
+                <h3>Añadir timbre, etc...</h3>
+                <button type="button" id="btn-cerrar-unidad">&times;</button>
+            </div>
+            
+            <div id="form-nueva-unidad-contenido">
+                <p><strong>¿Que es?:</strong></p>
+                <input type="text" id="tipo-unidad" name="tipo_unidad_nueva" placeholder="Departamento, timbre, etc">
+                
+                <p><strong>Descripción:</strong></p>
+                <input type="text" id="descripcion-tipo" name="descripcion_tipo_nueva" required placeholder="Timbre 1 de arriba a abajo...">
+                
+                <div class="button-group">
+                    <button type="button" id="btn-guardar-unidad" class="btn btn-primary">Guardar Unidad</button>
+                    <button type="button" id="btn-cancelar-unidad" class="btn btn-secondary">Cancelar</button>
+                    
+                </div>
+            </div>
+        </div>
+        `;
+
+        const formularioExistente = document.getElementById('info-panel');
+        const botonOtro = document.querySelector('button[onclick="añadirUnidad()"]');
+        
+        botonOtro.parentNode.insertBefore(contenedorUnidad, botonOtro.nextSibling);
+
+        document.getElementById('btn-cerrar-unidad').addEventListener('click', cerrarFormularioUnidad);
+        document.getElementById('btn-cancelar-unidad').addEventListener('click', cerrarFormularioUnidad);
+
+        // Guardar unidad
+        document.getElementById('btn-guardar-unidad').addEventListener('click', guardarNuevaUnidad);
+    }
+
+    function cerrarFormularioUnidad() {
+        const contenedor = document.getElementById('contenedor-nueva-unidad');
+        if (contenedor) {
+            contenedor.remove();
+        }
+    }
+
+    async function guardarNuevaUnidad() {
+        const idRecuadro = document.getElementById('info-id-recuadro-input').value;
+        if (!idRecuadro) {
+            alert('Error: No hay una propiedad seleccionada para asociar la unidad.');
+            return;
+        }
+
+        const tipoUnidad = document.getElementById('tipo-unidad').value;
+        const descripcionTipo = document.getElementById('descripcion-tipo').value;
+
+        if (!tipoUnidad) {
+            alert('Por favor, completa todos los campos obligatorios.');
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append('guardar_unidad', '1');
+        formData.append('id_recuadro', idRecuadro);
+        formData.append('tipo_unidad', tipoUnidad);
+        formData.append('descripcion_tipo', descripcionTipo);
+
+        try {
+            const response = await fetch('territorio_asignado.php', {
+                method: 'POST',
+                body: formData
+            });
+            const result = await response.json();
+
+            if (result.success) {
+                alert('Unidad guardada exitosamente.');
+                cerrarFormularioUnidad();
+                await obtenerYMostrarUnidades(idRecuadro); // Refrescar lista
+            } else {
+                alert('Error al guardar la unidad: ' + result.error);
+            }
+        } catch (error) {
+            console.error('Error en la petición para guardar unidad:', error);
+            alert('Ocurrió un error de conexión al intentar guardar la unidad.');
+        }
+    }
+
+
+    async function obtenerYMostrarUnidades(idRecuadro) {
+        const container = document.getElementById('lista-unidades-container');
+        if (!container) {
+            console.error('El contenedor de unidades no existe en el DOM.');
+            return;
+        }
+        container.innerHTML = '<p>Cargando unidades...</p>';
+
+        try {
+            const response = await fetch(`territorio_asignado.php?obtener_unidades=1&id_recuadro=${idRecuadro}`);
+            const data = await response.json();
+            container.innerHTML = ''; 
+
+            if (data.success && data.unidades.length > 0) {
+                data.unidades.forEach(unidad => {
+                    const unidadDiv = document.createElement('div');
+                    unidadDiv.style.cssText = `padding: 10px; border: 1px solid #eee; border-radius: 5px; margin-bottom: 10px; background: #f9f9f9;`;
+                    unidadDiv.innerHTML = `
+                        <strong>${unidad.nombre_unidad || 'Unidad'}:</strong> ${unidad.descripcion_unidad || ''}
+                        `;
+                    container.appendChild(unidadDiv);
+                });
+            } else {
+                container.innerHTML = '<p>No hay unidades registradas para esta propiedad.</p>';
+            }
+        } catch (error) {
+            console.error('Error al obtener la lista de unidades:', error);
+            container.innerHTML = '<p style="color: red;">Error al cargar las unidades.</p>';
+        }
+    }
+
     document.addEventListener('DOMContentLoaded', () => {
+
+        
+
         let currentSelectedPolygon = null;
 
         const AppState = {
@@ -1369,7 +1792,7 @@ input.custom-radio:checked + .check svg polyline {
                 alert('Primero debe definir una forma en la imagen usando "Iniciar Dibujo" y "Finalizar Dibujo".');
                 return;
             }
-           
+        
             document.getElementById('form-numero-propiedad').value = document.getElementById('input-numero-propiedad').value;
             document.getElementById('form-descripcion-casa').value = document.getElementById('input-descripcion-casa').value;
             
@@ -1415,52 +1838,52 @@ input.custom-radio:checked + .check svg polyline {
         }
 
         async function obtenerDetallesRecuadro(idRecuadro) {
-        try {
-            //MOstrar datos de la casas
-            const response = await fetch(`territorio_asignado.php?obtener_detalles=1&id_recuadro=${idRecuadro}`);
-            const data = await response.json();
+            try {
+                // Obtener detalles de la casa
+                const response = await fetch(`territorio_asignado.php?obtener_detalles=1&id_recuadro=${idRecuadro}`);
+                const data = await response.json();
 
-             const contenedorEstudio = document.getElementById('contenedor-estudio');
+                const contenedorEstudio = document.getElementById('contenedor-estudio');
                 if (parseInt(data.detalles.es_estudio) === 1) {
                     contenedorEstudio.style.display = 'block';
                 } else {
                     contenedorEstudio.style.display = 'none';
                 }
-        
             
-            if (data.success) {
+                if (data.success) {
+                    document.getElementById('info-id-recuadro-display').textContent = idRecuadro;
+                    document.getElementById('info-id-recuadro-input').value = idRecuadro;
+                    
+                    document.getElementById('info-numero-propiedad').value = data.detalles.numero_propiedad || '';
+                    document.getElementById('info-descripcion-casa').value = data.detalles.descripcion_casa || '';
+                    document.getElementById('info-descripcion-estudio').value = data.detalles.descripcion_estudio || '';
 
-                document.getElementById('info-id-recuadro-display').textContent = idRecuadro;
-                document.getElementById('info-id-recuadro-input').value = idRecuadro;
-                
-                document.getElementById('info-numero-propiedad').value = data.detalles.numero_propiedad || '';
-                document.getElementById('info-descripcion-casa').value = data.detalles.descripcion_casa || '';
-                document.getElementById('info-descripcion-estudio').value = data.detalles.descripcion_estudio || '';
+                    // Checikbox actualizar
+                    const estaCasaValue = parseInt(data.detalles.esta_casa);
+                    document.getElementById('info-esta-casa').checked = (estaCasaValue === 1);
+                    document.getElementById('info-no-atendio').checked = (estaCasaValue === 0);
+                    document.getElementById('info-no-visitar').checked = (parseInt(data.detalles.no_visitar) === 1);
+                    document.getElementById('info-es-estudio').checked = (parseInt(data.detalles.es_estudio) === 1);
 
-                // Checikbox actualizar
-                 const estaCasaValue = parseInt(data.detalles.esta_casa);
-                document.getElementById('info-esta-casa').checked = (estaCasaValue === 1);
-                document.getElementById('info-no-atendio').checked = (estaCasaValue === 0);
-                document.getElementById('info-no-visitar').checked = (parseInt(data.detalles.no_visitar) === 1);
-                document.getElementById('info-es-estudio').checked = (parseInt(data.detalles.es_estudio) === 1);
+                    document.getElementById('numero-propiedad-display').textContent = data.detalles.numero_propiedad || '';
+                    
+                    mostrarPanelInfo();
 
-                document.getElementById('numero-propiedad-display').textContent = data.detalles.numero_propiedad || '';
-                
-                
-                mostrarPanelInfo();
-            } else {
+                    // Cargar las unidades después de mostrar los detalles
+                    await obtenerYMostrarUnidades(idRecuadro);
+
+                } else {
+                    alert('Error al obtener detalles del recuadro');
+                }
+            } catch (error) {
+                console.error('Error:', error);
                 alert('Error al obtener detalles del recuadro');
             }
-        } catch (error) {
-            console.error('Error:', error);
-            alert('Error al obtener detalles del recuadro');
-        }
         }
 
         manejarCheckboxesExcluyentes('esta-casa-group');
         manejarCheckboxesExcluyentes('no-visitar-group');
         manejarCheckboxesExcluyentes('es-estudio-group');
-
 
         if (mainImage.complete && mainImage.naturalHeight > 0) {
             recalcularPosicionesReescalado();
@@ -1501,7 +1924,6 @@ input.custom-radio:checked + .check svg polyline {
         document.getElementById('info-panel').addEventListener('change', function(e) {
             if (e.target.id === 'info-es-estudio') {
                 const estudioContainer = document.getElementById('contenedor-estudio');
-                
                 estudioContainer.style.display = e.target.checked ? 'block' : 'none';
                 
                 // Limpiar campo si se desmarca
@@ -1521,7 +1943,9 @@ input.custom-radio:checked + .check svg polyline {
                 }
             });
         });
+        document.getElementById('btn-anadir-unidad').addEventListener('click', añadirUnidad);
+
     });
-    </script>
+</script>
 </body>
 </html>

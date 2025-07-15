@@ -288,7 +288,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $campana) { // Solo procesa si hay 
 
         /* Botón de envío */
         button[type="submit"] {
-            background-color: #0F1435;
+            background-color: var(--color-primary);
             color: var(--color-white);
             border: none;
             padding: 1rem 2rem;
@@ -299,11 +299,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $campana) { // Solo procesa si hay 
             transition: var(--transition);
             position: relative;
             overflow: hidden;
-            margin-top: 1rem;
+
             box-shadow: var(--shadow-md);
+            width: 100%; /* Asegura que el botón de submit sea ancho completo */
+            
         }
 
         button[type="submit"]:hover {
+            background-color: var(--color-secondary);
             transform: translateY(-2px);
             box-shadow: var(--shadow-xl);
         }
@@ -319,13 +322,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $campana) { // Solo procesa si hay 
             left: -100%;
             width: 100%;
             height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
             transition: left 0.5s;
         }
 
         button[type="submit"]:hover::before {
             left: 100%;
         }
+
 
         /* Animaciones */
         @keyframes slideInDown {
@@ -782,22 +785,21 @@ input.custom-radio:checked + .check svg polyline {
 
 
                     <div class="checkbox-container">
-    <label class="radio-option" id="option-marcar-no-visible" for="marcar_no_visible">
-        <input type="checkbox"
-               id="marcar_no_visible"
-               name="marcar_no_visible"
-               class="custom-radio"
-               <?php echo ($campana['visible'] == 0) ? 'checked' : ''; ?>>
-        <span class="check">
-            <svg width="22px" height="22px" viewBox="0 0 18 18">
-                <path d="M 1 9 L 1 9 c 0 -5 3 -8 8 -8 L 9 1 C 14 1 17 5 17 9 L 17 9 c 0 4 -4 8 -8 8 L 9 17 C 5 17 1 14 1 9 L 1 9 Z"></path>
-                <polyline points="1 9 7 14 15 4"></polyline>
-            </svg>
-        </span>
-        <span>Eliminar campaña</span>
-    </label>
-</div>
-
+                        <label class="radio-option" id="option-marcar-no-visible" for="marcar_no_visible">
+                            <input type="checkbox"
+                                id="marcar_no_visible"
+                                name="marcar_no_visible"
+                                class="custom-radio"
+                                <?php echo ($campana['visible'] == 0) ? 'checked' : ''; ?>>
+                            <span class="check">
+                                <svg width="22px" height="22px" viewBox="0 0 18 18">
+                                    <path d="M 1 9 L 1 9 c 0 -5 3 -8 8 -8 L 9 1 C 14 1 17 5 17 9 L 17 9 c 0 4 -4 8 -8 8 L 9 17 C 5 17 1 14 1 9 L 1 9 Z"></path>
+                                    <polyline points="1 9 7 14 15 4"></polyline>
+                                </svg>
+                            </span>
+                            <span>Eliminar campaña</span>
+                        </label>
+                    </div>
 
                     <button type="submit">
                         Actualizar Campaña
