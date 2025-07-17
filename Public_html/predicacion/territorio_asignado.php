@@ -111,6 +111,63 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['guardar_unidad'])) {
     }
 }
 
+if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['actualizar_unidad'])) {
+    header('Content-Type: application/json');
+    
+    try {
+        // Obtener datos del POST
+        $id_unidad = intval($_POST['id_unidad']);
+        $descripcion_unidad = $_POST['descripcion_unidad'] ?? '';
+        $esta_casa_unidad = isset($_POST['esta_casa_unidad']) ? intval($_POST['esta_casa_unidad']) : 0;
+        $no_visitar_unidad = intval($_POST['no_visitar_unidad'] ?? 0);
+        $es_estudio_unidad = intval($_POST['es_estudio_unidad'] ?? 0);
+        $descripcion_estudio_unidad = $_POST['descripcion_estudio_unidad'] ?? '';
+
+        // Validar que tenemos un ID de unidad válido
+        if ($id_unidad <= 0) {
+            echo json_encode(['success' => false, 'error' => 'ID de unidad inválido']);
+            exit;
+        }
+
+        // Preparar y ejecutar la actualización
+        $sql = "UPDATE unidades SET
+                descripcion_unidad = :descripcion_unidad,
+                esta_casa_unidad = :esta_casa_unidad,
+                no_visitar_unidad = :no_visitar_unidad,
+                es_estudio_unidad = :es_estudio_unidad,
+                descripcion_estudio_unidad = :descripcion_estudio_unidad
+                WHERE id_unidad = :id_unidad";
+        
+        $stmt = $conn->prepare($sql);
+        $stmt->bindParam(':descripcion_unidad', $descripcion_unidad, PDO::PARAM_STR);
+        $stmt->bindParam(':esta_casa_unidad', $esta_casa_unidad, PDO::PARAM_INT);
+        $stmt->bindParam(':no_visitar_unidad', $no_visitar_unidad, PDO::PARAM_INT);
+        $stmt->bindParam(':es_estudio_unidad', $es_estudio_unidad, PDO::PARAM_INT);
+        $stmt->bindParam(':descripcion_estudio_unidad', $descripcion_estudio_unidad, PDO::PARAM_STR);
+        $stmt->bindParam(':id_unidad', $id_unidad, PDO::PARAM_INT);
+        
+        if ($stmt->execute()) {
+            echo json_encode([
+                'success' => true,
+                'message' => 'Unidad actualizada correctamente'
+            ]);
+        } else {
+            echo json_encode([
+                'success' => false,
+                'error' => 'Error al actualizar la unidad'
+            ]);
+        }
+        exit;
+        
+    } catch (PDOException $e) {
+        echo json_encode([
+            'success' => false,
+            'error' => 'Error de base de datos: ' . $e->getMessage()
+        ]);
+        exit;
+    }
+}
+
 
 $rol_usuario = $_SESSION['rol_usuario'];
 $feedback_mensaje = "";
@@ -781,7 +838,7 @@ $mensaje_bienvenida = "Territorio " . $id_imagen_url;
             align-items: center;
             gap: 0.75rem;
             padding: 1rem;
-            background: linear-gradient(135deg, #F8FAFC 0%, #F1F5F9 100%);
+            background: #F8FAFC;
             border-radius: var(--radius-md, 0.5rem);
             border: 1px solid var(--color-border, #E5E7EB);
             transition: var(--transition, all 0.3s ease);
@@ -875,17 +932,17 @@ $mensaje_bienvenida = "Territorio " . $id_imagen_url;
             
         }
 
-        #btn-anadir-unidad :hover {
+         #btn-anadir-unidad:hover {
             background-color: var(--color-secondary);
             transform: translateY(-2px);
             box-shadow: var(--shadow-xl);
         }
 
-        #btn-anadir-unidad :active {
+         #btn-anadir-unidad:active {
             transform: translateY(0);
         }
 
-        #btn-anadir-unidad :before {
+         #btn-anadir-unidad:before {
             content: '';
             position: absolute;
             top: 0;
@@ -895,9 +952,56 @@ $mensaje_bienvenida = "Territorio " . $id_imagen_url;
             transition: left 0.5s;
         }
 
-        #btn-anadir-unidad :hover::before {
+         #btn-anadir-unidad:hover::before {
             left: 100%;
         }
+
+        .hidden {
+        display: none !important;
+        }
+
+        .btn-actualizar-unidad {
+            background-color: var(--color-primary);
+            color: var(--color-white);
+            border: none;
+            padding: 1rem 2rem;
+            font-size: 1.1rem;
+            font-weight: 600;
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+            margin-top: 20px;
+            box-shadow: var(--shadow-md);
+            width: 100%; /* Asegura que el botón de submit sea ancho completo */
+            
+        }
+
+        .btn-actualizar-unidad:hover {
+            background-color: var(--color-secondary);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-xl);
+        }
+
+        .btn-actualizar-unidad:active {
+            transform: translateY(0);
+        }
+
+        .btn-actualizar-unidad:before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            transition: left 0.5s;
+        }
+
+        .btn-actualizar-unidad:hover::before {
+            left: 100%;
+        }
+
 
         .recuadro {
             position: absolute;
@@ -1294,7 +1398,27 @@ $mensaje_bienvenida = "Territorio " . $id_imagen_url;
 
         .btn-secondary:hover {
             background: #5a6268;
-        }    </style>
+        }    
+
+        .unidad-card {
+            border: 1px solid var(--color-border, #E5E7EB);
+            padding: 10px;
+            margin-bottom: 20px;
+            background: #F8FAFC;
+            border-radius: var(--radius-md, 0.5rem);
+            transition: var(--transition, all 0.3s ease);
+        }
+
+        .unidad-card:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 5px 10px 0 rgba(0, 0, 0, 0.32);
+        }
+        
+        .unidad-titulo{
+            margin-bottom: 20px;
+            font-size: 1.3rem !important;
+        }
+        </style>
 </head>
 <body>
     <?php include('../includes/header_menu.php'); ?>
@@ -1432,54 +1556,58 @@ $mensaje_bienvenida = "Territorio " . $id_imagen_url;
             <button type="submit" id="btn-actualizar-recuadro" style="margin-top: 20px;">
                 Actualizar
             </button>
+            
+            <?php if (isset($_SESSION['rol_usuario']) && $_SESSION['rol_usuario'] === 'anciano'): ?>
+                <button onclick= "añadirUnidad()" type="button" id="btn-anadir-unidad" style="margin-top: 20px;">
+                    Añadir timbre, etc...
+                </button>
+            <?php endif; ?>
 
-            <button onclick= "añadirUnidad()" type="button" id="btn-anadir-unidad" style="margin-top: 20px;">
-                Añadir timbre, etc...
-            </button>
             </div>
             
             </form>
-        
+                
 
-        <div id="add-recuadro-form">
-            <h2>Añadir Nueva Forma</h2>
-             
-             <div class="form-group">
-                 <label for="input-numero-propiedad">Número Propiedad:</label>
-                 <input type="text" id="input-numero-propiedad" placeholder="Ej: A-1">
-             </div>
-             <div class="form-group">
-                 <label for="input-descripcion-casa">Descripción de la Casa:</label>
-                 <textarea id="input-descripcion-casa" placeholder="Breve descripción de la casa"></textarea>
-             </div>
+            <div id="add-recuadro-form" class="<?= ($_SESSION['rol_usuario'] !== 'anciano') ? 'hidden' : '' ?>">
 
-            <div class="form-group">
-                <label>Coordenadas:</label>
-                <div id="display-coordenadas" class="coordinates-display">Haga clic en "Iniciar Dibujo" y marque los puntos en la imagen.</div>
+                <h2>Añadir Nueva Forma</h2>
+                
+                <div class="form-group">
+                    <label for="input-numero-propiedad">Número Propiedad:</label>
+                    <input type="text" id="input-numero-propiedad" placeholder="Ej: A-1">
+                </div>
+                <div class="form-group">
+                    <label for="input-descripcion-casa">Descripción de la Casa:</label>
+                    <textarea id="input-descripcion-casa" placeholder="Breve descripción de la casa"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label>Coordenadas:</label>
+                    <div id="display-coordenadas" class="coordinates-display">Haga clic en "Iniciar Dibujo" y marque los puntos en la imagen.</div>
+                </div>
+
+                <button id="btn-iniciar-dibujo">Iniciar Dibujo</button>
+                <button id="btn-finalizar-dibujo" style="display: none; background-color: #3182CE;">Finalizar Dibujo</button>
+                <button id="btn-cancelar-dibujo" style="display: none; background-color: #f44336;">Cancelar</button>
+                <button id="btn-guardar-forma">Guardar</button>
+                <button id="btn-limpiar-formulario" style="background-color: #FFC107;">Limpiar Formulario</button>
             </div>
 
-            <button id="btn-iniciar-dibujo">Iniciar Dibujo</button>
-            <button id="btn-finalizar-dibujo" style="display: none; background-color: #3182CE;">Finalizar Dibujo</button>
-            <button id="btn-cancelar-dibujo" style="display: none; background-color: #f44336;">Cancelar</button>
-            <button id="btn-guardar-forma">Guardar</button>
-            <button id="btn-limpiar-formulario" style="background-color: #FFC107;">Limpiar Formulario</button>
-        </div>
-
-        <div id="significado_colores">
-            <h2>Significado de los Colores</h2>
-            <div class="color-meaning-item">
-                <div class="color-box color-gray"></div>
-                <span>No en casa</span>
+            <div id="significado_colores">
+                <h2>Significado de los Colores</h2>
+                <div class="color-meaning-item">
+                    <div class="color-box color-gray"></div>
+                    <span>No en casa</span>
+                </div>
+                <div class="color-meaning-item">
+                    <div class="color-box color-green"></div>
+                    <span>Si en casa</span>
+                </div>
+                <div class="color-meaning-item">
+                    <div class="color-box color-red"></div>
+                    <span>No visitar</span>
+                </div>
             </div>
-            <div class="color-meaning-item">
-                <div class="color-box color-green"></div>
-                <span>Si en casa</span>
-            </div>
-            <div class="color-meaning-item">
-                <div class="color-box color-red"></div>
-                <span>No visitar</span>
-            </div>
-        </div>
 
         <form id="coordenadas-form" action="territorio_asignado.php?id_imagen=<?php echo $id_imagen_url; ?>" method="POST" style="display: none;">
             <input type="hidden" name="guardar_recuadro" value="1">
@@ -1501,34 +1629,31 @@ $mensaje_bienvenida = "Territorio " . $id_imagen_url;
     </main>
 
     <script>
-
     function añadirUnidad() {
-
+       
         const contenedorUnidad = document.createElement('div');
         contenedorUnidad.id = 'contenedor-nueva-unidad';
         
-
         contenedorUnidad.innerHTML = `
             <div class="form-container">
-            <div id="form-nueva-unidad">
-                <h3>Añadir timbre, etc...</h3>
-                <button type="button" id="btn-cerrar-unidad">&times;</button>
-            </div>
-            
-            <div id="form-nueva-unidad-contenido">
-                <p><strong>¿Que es?:</strong></p>
-                <input type="text" id="tipo-unidad" name="tipo_unidad_nueva" placeholder="Departamento, timbre, etc">
+                <div id="form-nueva-unidad">
+                    <h3>Añadir timbre, etc...</h3>
+                    <button type="button" id="btn-cerrar-unidad">&times;</button>
+                </div>
                 
-                <p><strong>Descripción:</strong></p>
-                <input type="text" id="descripcion-tipo" name="descripcion_tipo_nueva" required placeholder="Timbre 1 de arriba a abajo...">
-                
-                <div class="button-group">
-                    <button type="button" id="btn-guardar-unidad" class="btn btn-primary">Guardar Unidad</button>
-                    <button type="button" id="btn-cancelar-unidad" class="btn btn-secondary">Cancelar</button>
+                <div id="form-nueva-unidad-contenido">
+                    <p><strong>¿Que es?:</strong></p>
+                    <input type="text" id="tipo-unidad" name="tipo_unidad_nueva" placeholder="Departamento, timbre, etc">
                     
+                    <p><strong>Descripción:</strong></p>
+                    <input type="text" id="descripcion-tipo" name="descripcion_tipo_nueva" required placeholder="Timbre 1 de arriba a abajo...">
+                    
+                    <div class="button-group">
+                        <button type="button" id="btn-guardar-unidad" class="btn btn-primary">Guardar Unidad</button>
+                        <button type="button" id="btn-cancelar-unidad" class="btn btn-secondary">Cancelar</button>
+                    </div>
                 </div>
             </div>
-        </div>
         `;
 
         const formularioExistente = document.getElementById('info-panel');
@@ -1538,8 +1663,6 @@ $mensaje_bienvenida = "Territorio " . $id_imagen_url;
 
         document.getElementById('btn-cerrar-unidad').addEventListener('click', cerrarFormularioUnidad);
         document.getElementById('btn-cancelar-unidad').addEventListener('click', cerrarFormularioUnidad);
-
-        // Guardar unidad
         document.getElementById('btn-guardar-unidad').addEventListener('click', guardarNuevaUnidad);
     }
 
@@ -1581,7 +1704,7 @@ $mensaje_bienvenida = "Territorio " . $id_imagen_url;
             if (result.success) {
                 alert('Unidad guardada exitosamente.');
                 cerrarFormularioUnidad();
-                await obtenerYMostrarUnidades(idRecuadro); // Refrescar lista
+                await obtenerYMostrarUnidades(idRecuadro);
             } else {
                 alert('Error al guardar la unidad: ' + result.error);
             }
@@ -1590,7 +1713,6 @@ $mensaje_bienvenida = "Territorio " . $id_imagen_url;
             alert('Ocurrió un error de conexión al intentar guardar la unidad.');
         }
     }
-
 
     async function obtenerYMostrarUnidades(idRecuadro) {
         const container = document.getElementById('lista-unidades-container');
@@ -1603,19 +1725,104 @@ $mensaje_bienvenida = "Territorio " . $id_imagen_url;
         try {
             const response = await fetch(`territorio_asignado.php?obtener_unidades=1&id_recuadro=${idRecuadro}`);
             const data = await response.json();
-            container.innerHTML = ''; 
+            container.innerHTML = '';
 
             if (data.success && data.unidades.length > 0) {
+                const titulo = document.createElement('h3');
+                titulo.textContent = 'Departamentos, timbres, etc...';
+                titulo.style = 'text-align: center; color: #3f51b5; font-size: 1.8rem; padding-bottom: 10px; margin-bottom: 20px;';
+                container.appendChild(titulo);
+
                 data.unidades.forEach(unidad => {
                     const unidadDiv = document.createElement('div');
-                    unidadDiv.style.cssText = `padding: 10px; border: 1px solid #eee; border-radius: 5px; margin-bottom: 10px; background: #f9f9f9;`;
+                    unidadDiv.classList.add('unidad-card');
+                    unidadDiv.dataset.unidadId = unidad.id_unidad;
+
+                    // Determinar estado inicial de los controles
+                    const estaCasaSiChecked = unidad.esta_casa_unidad == 1 ? 'checked' : '';
+                    const estaCasaNoChecked = unidad.esta_casa_unidad == 0 ? 'checked' : '';
+                    const noVisitarChecked = unidad.no_visitar_unidad == 1 ? 'checked' : '';
+                    const esEstudioChecked = unidad.es_estudio_unidad == 1 ? 'checked' : '';
+                    const mostrarEstudio = unidad.es_estudio_unidad == 1 ? 'block' : 'none';
+
                     unidadDiv.innerHTML = `
-                        <strong>${unidad.nombre_unidad || 'Unidad'}:</strong> ${unidad.descripcion_unidad || ''}
-                        `;
+                        <p class="unidad-titulo"><strong>Esto es un: ${unidad.nombre_unidad || 'Unidad'}</strong></p> 
+                        <p><strong>Descripcion: </strong></p> 
+                        <input type="text" class="unidad-descripcion" value="${unidad.descripcion_unidad || ''}">
+
+                        <div class="checkbox-group-single" style="margin-bottom: 20px !important;">
+                            <p><strong>¿Atendió?</strong></p>
+                            <div class="options-container" style="display: flex; gap: 15px;">
+                                <label class="radio-option">
+                                    <input type="radio" name="esta_casa_${unidad.id_unidad}" value="1" 
+                                        class="custom-radio unidad-radio" ${estaCasaSiChecked}>
+                                    <span class="check">
+                                        <svg width="22px" height="22px" viewBox="0 0 18 18">
+                                            <path d="M 1 9 L 1 9 c 0 -5 3 -8 8 -8 L 9 1 C 14 1 17 5 17 9 L 17 9 c 0 4 -4 8 -8 8 L 9 17 C 5 17 1 14 1 9 L 1 9 Z"></path>
+                                            <polyline points="1 9 7 14 15 4"></polyline>
+                                        </svg>
+                                    </span>
+                                    <span>Sí</span>
+                                </label>
+                                
+                                <label class="radio-option">
+                                    <input type="radio" name="esta_casa_${unidad.id_unidad}" value="0" 
+                                        class="custom-radio unidad-radio" ${estaCasaNoChecked}>
+                                    <span class="check">
+                                        <svg width="22px" height="22px" viewBox="0 0 18 18">
+                                            <path d="M 1 9 L 1 9 c 0 -5 3 -8 8 -8 L 9 1 C 14 1 17 5 17 9 L 17 9 c 0 4 -4 8 -8 8 L 9 17 C 5 17 1 14 1 9 L 1 9 Z"></path>
+                                            <polyline points="1 9 7 14 15 4"></polyline>
+                                        </svg>
+                                    </span>
+                                    <span>No</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="checkbox-group-single" style="margin-bottom: 20px !important;">
+                            <label class="radio-option">
+                                <input type="checkbox" class="custom-radio unidad-checkbox" 
+                                    data-type="no-visitar" value="1" ${noVisitarChecked}>
+                                <span class="check">
+                                    <svg width="22px" height="22px" viewBox="0 0 18 18">
+                                        <path d="M 1 9 L 1 9 c 0 -5 3 -8 8 -8 L 9 1 C 14 1 17 5 17 9 L 17 9 c 0 4 -4 8 -8 8 L 9 17 C 5 17 1 14 1 9 L 1 9 Z"></path>
+                                        <polyline points="1 9 7 14 15 4"></polyline>
+                                    </svg>
+                                </span>
+                                <span>No Visitar</span>
+                            </label>
+                        </div>
+
+                        <div class="checkbox-group-single" style="margin-bottom: 20px !important;">
+                            <label class="radio-option">
+                                <input type="checkbox" class="custom-radio unidad-checkbox" 
+                                    data-type="es-estudio" value="1" ${esEstudioChecked}
+                                    onchange="toggleEstudio(this, ${unidad.id_unidad})">
+                                <span class="check">
+                                    <svg width="22px" height="22px" viewBox="0 0 18 18">
+                                        <path d="M 1 9 L 1 9 c 0 -5 3 -8 8 -8 L 9 1 C 14 1 17 5 17 9 L 17 9 c 0 4 -4 8 -8 8 L 9 17 C 5 17 1 14 1 9 L 1 9 Z"></path>
+                                        <polyline points="1 9 7 14 15 4"></polyline>
+                                    </svg>
+                                </span>
+                                <span>¿Es un Estudio o revisita?</span>
+                            </label>
+                        </div>
+
+                        <div class="contenedor-estudio-unidad" id="estudio-${unidad.id_unidad}" 
+                            style="display: ${mostrarEstudio};">
+                            <p><strong>¿De quien es el estudio?</strong></p>
+                            <input type="text" class="unidad-estudio-input" 
+                                value="${unidad.descripcion_estudio_unidad || ''}">
+                        </div>
+                        <button type="button" class="btn-actualizar-unidad" 
+                            onclick="actualizarUnidad(${unidad.id_unidad})">
+                            Actualizar
+                        </button>
+                    `;
                     container.appendChild(unidadDiv);
                 });
             } else {
-                container.innerHTML = '<p>No hay unidades registradas para esta propiedad.</p>';
+                container.innerHTML = '';
             }
         } catch (error) {
             console.error('Error al obtener la lista de unidades:', error);
@@ -1623,17 +1830,65 @@ $mensaje_bienvenida = "Territorio " . $id_imagen_url;
         }
     }
 
-    document.addEventListener('DOMContentLoaded', () => {
+    // Función para mostrar/ocultar estudio
+    function toggleEstudio(checkbox, idUnidad) {
+        const contenedor = document.getElementById(`estudio-${idUnidad}`);
+        contenedor.style.display = checkbox.checked ? 'block' : 'none';
+    }
 
+async function actualizarUnidad(idUnidad) {
+    const unidadCard = document.querySelector(`.unidad-card[data-unidad-id="${idUnidad}"]`);
+    if (!unidadCard) {
+        alert('Error: No se encontró la unidad');
+        return;
+    }
+
+    // Obtener valores
+    const descripcion = unidadCard.querySelector('.unidad-descripcion').value || '';
+    const estaCasa = unidadCard.querySelector(`input[name="esta_casa_${idUnidad}"]:checked`)?.value || 0;
+    
+    // Corrección clave: usar guiones en data-type (coherente con el HTML)
+    const noVisitar = unidadCard.querySelector('.unidad-checkbox[data-type="no-visitar"]').checked ? 1 : 0;
+    const esEstudio = unidadCard.querySelector('.unidad-checkbox[data-type="es-estudio"]').checked ? 1 : 0;
+    
+    const estudioInput = unidadCard.querySelector('.unidad-estudio-input');
+    const estudioDesc = estudioInput ? estudioInput.value || '' : '';
+
+    const formData = new FormData();
+    formData.append('actualizar_unidad', '1');
+    formData.append('id_unidad', idUnidad);
+    formData.append('descripcion_unidad', descripcion);
+    formData.append('esta_casa_unidad', estaCasa);
+    formData.append('no_visitar_unidad', noVisitar);  // Ahora envía 0/1 correctamente
+    formData.append('es_estudio_unidad', esEstudio);  // Ahora envía 0/1 correctamente
+    formData.append('descripcion_estudio_unidad', estudioDesc);
+
+    try {
+        const response = await fetch('territorio_asignado.php', {
+            method: 'POST',
+            body: formData
+        });
         
+        const result = await response.json();
+        if (result.success) {
+            alert(result.message);
+            // Recargar unidades
+            const idRecuadro = document.getElementById('info-id-recuadro-input')?.value;
+            if(idRecuadro) obtenerYMostrarUnidades(idRecuadro);
+        } else {
+            throw new Error(result.error || 'Error desconocido');
+        }
+    } catch (error) {
+        console.error('Error en actualizarUnidad:', error);
+        alert(`Error al actualizar: ${error.message}`);
+    }
+}
+    // Asegúrate que esté disponible globalmente
+    window.actualizarUnidad = actualizarUnidad;
 
+    document.addEventListener('DOMContentLoaded', () => {
         let currentSelectedPolygon = null;
-
-        const AppState = {
-            modoDibujo: false,
-            puntos: [],
-        };
-
+        const AppState = { modoDibujo: false, puntos: [] };
         const mainImage = document.getElementById('main-image');
         const drawingCanvas = document.getElementById('drawing-canvas');
         const svgOverlay = document.getElementById('svg-overlay');
@@ -1643,7 +1898,7 @@ $mensaje_bienvenida = "Territorio " . $id_imagen_url;
         const btnCancelarDibujo = document.getElementById('btn-cancelar-dibujo');
         const btnGuardar = document.getElementById('btn-guardar-forma');
         const btnLimpiar = document.getElementById('btn-limpiar-formulario');
-
+        
         function recalcularPosicionesReescalado() {
             if (!mainImage.complete || !mainImage.naturalWidth || mainImage.naturalWidth === 0) return;
 
@@ -1824,22 +2079,23 @@ $mensaje_bienvenida = "Territorio " . $id_imagen_url;
             document.getElementById('info-panel').style.display = 'none';
         }
 
-        function manejarCheckboxesExcluyentes(grupo) {
-            const checkboxes = document.querySelectorAll(`input[name="${grupo}"]`);
-            checkboxes.forEach(checkbox => {
-                checkbox.addEventListener('change', function() {
-                    if (this.checked) {
-                        checkboxes.forEach(cb => {
-                            if (cb !== this) cb.checked = false;
-                        });
-                    }
-                });
-            });
-        }
+        // Event delegation para unidades
+        document.getElementById('lista-unidades-container').addEventListener('change', function(e) {
+            const target = e.target;
+            const unidadCard = target.closest('.unidad-card');
+            if (!unidadCard) return;
+            
+            // Manejar estudio
+            if (target.classList.contains('unidad-checkbox') && target.dataset.type === 'es-estudio') {
+                const contenedor = unidadCard.querySelector('.contenedor-estudio-unidad');
+                if (contenedor) {
+                    contenedor.style.display = target.checked ? 'block' : 'none';
+                }
+            }
+        });
 
         async function obtenerDetallesRecuadro(idRecuadro) {
             try {
-                // Obtener detalles de la casa
                 const response = await fetch(`territorio_asignado.php?obtener_detalles=1&id_recuadro=${idRecuadro}`);
                 const data = await response.json();
 
@@ -1858,7 +2114,6 @@ $mensaje_bienvenida = "Territorio " . $id_imagen_url;
                     document.getElementById('info-descripcion-casa').value = data.detalles.descripcion_casa || '';
                     document.getElementById('info-descripcion-estudio').value = data.detalles.descripcion_estudio || '';
 
-                    // Checikbox actualizar
                     const estaCasaValue = parseInt(data.detalles.esta_casa);
                     document.getElementById('info-esta-casa').checked = (estaCasaValue === 1);
                     document.getElementById('info-no-atendio').checked = (estaCasaValue === 0);
@@ -1868,8 +2123,6 @@ $mensaje_bienvenida = "Territorio " . $id_imagen_url;
                     document.getElementById('numero-propiedad-display').textContent = data.detalles.numero_propiedad || '';
                     
                     mostrarPanelInfo();
-
-                    // Cargar las unidades después de mostrar los detalles
                     await obtenerYMostrarUnidades(idRecuadro);
 
                 } else {
@@ -1880,10 +2133,6 @@ $mensaje_bienvenida = "Territorio " . $id_imagen_url;
                 alert('Error al obtener detalles del recuadro');
             }
         }
-
-        manejarCheckboxesExcluyentes('esta-casa-group');
-        manejarCheckboxesExcluyentes('no-visitar-group');
-        manejarCheckboxesExcluyentes('es-estudio-group');
 
         if (mainImage.complete && mainImage.naturalHeight > 0) {
             recalcularPosicionesReescalado();
@@ -1926,14 +2175,12 @@ $mensaje_bienvenida = "Territorio " . $id_imagen_url;
                 const estudioContainer = document.getElementById('contenedor-estudio');
                 estudioContainer.style.display = e.target.checked ? 'block' : 'none';
                 
-                // Limpiar campo si se desmarca
                 if (!e.target.checked) {
                     document.getElementById('info-descripcion-estudio').value = '';
                 }
             }
         });
 
-        // Comportamiento excluyente para los radios
         document.querySelectorAll('input[name="esta_casa"]').forEach(radio => {
             radio.addEventListener('change', function() {
                 if (this.value === "1") {
@@ -1943,8 +2190,9 @@ $mensaje_bienvenida = "Territorio " . $id_imagen_url;
                 }
             });
         });
-        document.getElementById('btn-anadir-unidad').addEventListener('click', añadirUnidad);
 
+
+        
     });
 </script>
 </body>
