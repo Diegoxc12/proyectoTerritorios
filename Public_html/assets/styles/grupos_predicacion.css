@@ -29,12 +29,10 @@
 
         body {
             font-family: 'Inter', sans-serif;
-            background-color: var(--color-bg);
             margin: 0;
             padding: 0;
             line-height: 1.6;
             color: var(--color-text);
-            background-color:rgb(142, 178, 255); /* Color de fondo más claro */
         }
 
         main {

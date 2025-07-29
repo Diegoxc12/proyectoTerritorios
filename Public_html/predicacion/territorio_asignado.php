@@ -370,6 +370,8 @@ $mensaje_bienvenida = "Territorio " . $id_imagen_url;
             --radius-lg: 12px;
             --radius-xl: 16px;
             --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+                    --transition-duration: 0.3s; 
+
         }
 
         main {
@@ -1071,6 +1073,15 @@ $mensaje_bienvenida = "Territorio " . $id_imagen_url;
             border-top: 4px solid  #3182CE;
         }
 
+        #mapa-territorio {
+            margin-top: 50px;
+            font-size: 1.8rem; 
+            color: #333;
+            margin-bottom: 15px; 
+            text-align: center;
+            padding-bottom: 10px;
+        }
+
         #add-recuadro-form h2 {
             color: #3f51b5;
             margin-top: 0;
@@ -1139,18 +1150,20 @@ $mensaje_bienvenida = "Territorio " . $id_imagen_url;
 
         #add-recuadro-form button {
             padding: 12px 20px;
-            background-color: #3182CE; /* Verde para acciones principales */
+            background-color: var(--color-primary);
+
             color: white;
             border: none;
             border-radius: 5px;
             cursor: pointer;
             font-size: 1.1rem;
-            transition: background-color 0.2s ease, transform 0.1s ease;
+            transition: background-color var(--transition-duration) ease, transform var(--transition-duration) ease;
             margin-top: 15px;
         }
 
         #add-recuadro-form button:hover {
-            transform: translateY(-1px);
+            background-color: var(--color-secondary);
+            transform: translateY(-2px);        
         }
 
         #btn-asignar-coordenadas {
@@ -1418,6 +1431,33 @@ $mensaje_bienvenida = "Territorio " . $id_imagen_url;
             margin-bottom: 20px;
             font-size: 1.3rem !important;
         }
+
+        .download-btn {
+            padding: 12px 20px;
+            background-color: var(--color-primary);
+            color: white;
+            border-radius: 8px;
+            text-decoration: none;
+            transition: background-color var(--transition-duration) ease, transform var(--transition-duration) ease;
+            margin-top: 25px;
+            border: none;
+            cursor: pointer;
+            font-size: 1.1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px; /* Espacio entre ícono y texto */
+        }
+
+        .download-btn:hover {
+            background-color: var(--color-secondary);
+            transform: translateY(-2px);
+        }
+
+        .download-btn:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
         </style>
 </head>
 <body>
@@ -1582,8 +1622,7 @@ $mensaje_bienvenida = "Territorio " . $id_imagen_url;
                 </div>
 
                 <div class="form-group">
-                    <label>Coordenadas:</label>
-                    <div id="display-coordenadas" class="coordinates-display">Haga clic en "Iniciar Dibujo" y marque los puntos en la imagen.</div>
+                                        <div id="display-coordenadas" class="coordinates-display">Haga clic en "Iniciar Dibujo" y marque los puntos en la imagen.</div>
                 </div>
 
                 <button id="btn-iniciar-dibujo">Iniciar Dibujo</button>
@@ -1607,6 +1646,15 @@ $mensaje_bienvenida = "Territorio " . $id_imagen_url;
                     <div class="color-box color-red"></div>
                     <span>No visitar</span>
                 </div>
+
+                <a href="<?php echo $nombre_archivo_imagen_solo ?? '#'; ?>" 
+                class="download-btn" 
+                data-aos="zoom-in" 
+                data-aos-delay="200" 
+                download>
+                <img src="../assets/img/download_icon.png" alt="" style="height: 20px; vertical-align: middle; margin-right: 8px;">
+                Descargar Territorio <?php echo $id_imagen_url; ?>
+                </a>
             </div>
 
         <form id="coordenadas-form" action="territorio_asignado.php?id_imagen=<?php echo $id_imagen_url; ?>" method="POST" style="display: none;">
@@ -1625,7 +1673,17 @@ $mensaje_bienvenida = "Territorio " . $id_imagen_url;
             <?php endfor; ?>
         </form>
         
-        
+
+        <h2 id="mapa-territorio">Mapa del territorio</h2>
+                
+
+
+        <div id="image-container-wrapper">
+            <div id="image-container">
+                <img id="main-image" src="../assets/img/mapa_territorio.jpg" alt="Imagen de Territorio">
+               
+            </div>
+        </div>
     </main>
 
     <script>
@@ -1830,61 +1888,58 @@ $mensaje_bienvenida = "Territorio " . $id_imagen_url;
         }
     }
 
-    // Función para mostrar/ocultar estudio
     function toggleEstudio(checkbox, idUnidad) {
         const contenedor = document.getElementById(`estudio-${idUnidad}`);
         contenedor.style.display = checkbox.checked ? 'block' : 'none';
     }
 
-async function actualizarUnidad(idUnidad) {
-    const unidadCard = document.querySelector(`.unidad-card[data-unidad-id="${idUnidad}"]`);
-    if (!unidadCard) {
-        alert('Error: No se encontró la unidad');
-        return;
-    }
-
-    // Obtener valores
-    const descripcion = unidadCard.querySelector('.unidad-descripcion').value || '';
-    const estaCasa = unidadCard.querySelector(`input[name="esta_casa_${idUnidad}"]:checked`)?.value || 0;
-    
-    // Corrección clave: usar guiones en data-type (coherente con el HTML)
-    const noVisitar = unidadCard.querySelector('.unidad-checkbox[data-type="no-visitar"]').checked ? 1 : 0;
-    const esEstudio = unidadCard.querySelector('.unidad-checkbox[data-type="es-estudio"]').checked ? 1 : 0;
-    
-    const estudioInput = unidadCard.querySelector('.unidad-estudio-input');
-    const estudioDesc = estudioInput ? estudioInput.value || '' : '';
-
-    const formData = new FormData();
-    formData.append('actualizar_unidad', '1');
-    formData.append('id_unidad', idUnidad);
-    formData.append('descripcion_unidad', descripcion);
-    formData.append('esta_casa_unidad', estaCasa);
-    formData.append('no_visitar_unidad', noVisitar);  // Ahora envía 0/1 correctamente
-    formData.append('es_estudio_unidad', esEstudio);  // Ahora envía 0/1 correctamente
-    formData.append('descripcion_estudio_unidad', estudioDesc);
-
-    try {
-        const response = await fetch('territorio_asignado.php', {
-            method: 'POST',
-            body: formData
-        });
-        
-        const result = await response.json();
-        if (result.success) {
-            alert(result.message);
-            // Recargar unidades
-            const idRecuadro = document.getElementById('info-id-recuadro-input')?.value;
-            if(idRecuadro) obtenerYMostrarUnidades(idRecuadro);
-        } else {
-            throw new Error(result.error || 'Error desconocido');
+    async function actualizarUnidad(idUnidad) {
+        const unidadCard = document.querySelector(`.unidad-card[data-unidad-id="${idUnidad}"]`);
+        if (!unidadCard) {
+            alert('Error: No se encontró la unidad');
+            return;
         }
-    } catch (error) {
-        console.error('Error en actualizarUnidad:', error);
-        alert(`Error al actualizar: ${error.message}`);
+
+        // Obtener valores
+        const descripcion = unidadCard.querySelector('.unidad-descripcion').value || '';
+        const estaCasa = unidadCard.querySelector(`input[name="esta_casa_${idUnidad}"]:checked`)?.value || 0;
+        
+        const noVisitar = unidadCard.querySelector('.unidad-checkbox[data-type="no-visitar"]').checked ? 1 : 0;
+        const esEstudio = unidadCard.querySelector('.unidad-checkbox[data-type="es-estudio"]').checked ? 1 : 0;
+        
+        const estudioInput = unidadCard.querySelector('.unidad-estudio-input');
+        const estudioDesc = estudioInput ? estudioInput.value || '' : '';
+
+        const formData = new FormData();
+        formData.append('actualizar_unidad', '1');
+        formData.append('id_unidad', idUnidad);
+        formData.append('descripcion_unidad', descripcion);
+        formData.append('esta_casa_unidad', estaCasa);
+        formData.append('no_visitar_unidad', noVisitar); 
+        formData.append('es_estudio_unidad', esEstudio);  
+        formData.append('descripcion_estudio_unidad', estudioDesc);
+
+        try {
+            const response = await fetch('territorio_asignado.php', {
+                method: 'POST',
+                body: formData
+            });
+            
+            const result = await response.json();
+            if (result.success) {
+                alert(result.message);
+                // Recargar unidades
+                const idRecuadro = document.getElementById('info-id-recuadro-input')?.value;
+                if(idRecuadro) obtenerYMostrarUnidades(idRecuadro);
+            } else {
+                throw new Error(result.error || 'Error desconocido');
+            }
+        } catch (error) {
+            console.error('Error en actualizarUnidad:', error);
+            alert(`Error al actualizar: ${error.message}`);
+        }
     }
-}
-    // Asegúrate que esté disponible globalmente
-    window.actualizarUnidad = actualizarUnidad;
+        window.actualizarUnidad = actualizarUnidad;
 
     document.addEventListener('DOMContentLoaded', () => {
         let currentSelectedPolygon = null;

@@ -589,6 +589,10 @@ $mensaje_bienvenida = $mensaje_bienvenida ?? "<span class=\"typewriter thick\"><
             <li>
                 <a href="../predicacion/grupos_predicacion.php">Grupos de Predicación</a>
             </li>
+
+            <li>
+                <a href="../reuniones/reuniones.php">Reuniones</a>
+            </li>
             
             <li>
                 <a href="../predicacion/territorios.php">Territorios</a>
