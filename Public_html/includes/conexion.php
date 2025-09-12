@@ -1,8 +1,11 @@
 <?php
 $host = 'localhost';
-$dbname = 'totoranorte_db';
-$user = 'root';
-$pass = ''; // PON AQUÍ LA CONTRASEÑA SI TU MYSQL LA USA
+//$dbname = 'totoranorte_db';
+//$user = 'root';
+//$pass = ''; // PON AQUÍ LA CONTRASEÑA SI TU MYSQL LA USA
+$dbname = "jtkboomy_totoranorte_db";
+$user="jtkboomy_totoranorte_db_user";
+$pass="TotoraNorte1914";
 
 try {
     $conn = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8", $user, $pass);
