@@ -1,0 +1,597 @@
+        #image-container { position: relative; display: inline-block; }
+        #main-image { display: block; max-width: 100%; height: auto; }
+        #drawing-canvas, #svg-overlay { position: absolute; top: 0; left: 0; pointer-events: none; }
+        #main-image { pointer-events: auto; }
+        .saved-shape { cursor: pointer; pointer-events: all; }
+        .saved-shape:hover { stroke-width: 3; stroke: black; }
+
+        main {
+            margin: 15px;
+            padding-bottom: 40px;
+            transition: margin-left 0.3s ease;
+            min-height: calc(100vh - 80px);
+            justify-content: flex-start;
+        }
+
+        @media (min-width: 768px) {
+            main {
+                margin: 30px;
+                padding-bottom: 60px;
+                min-height: calc(100vh - 100px);
+                max-width: none;
+                width: calc(100% - 60px);
+            }
+            
+            main h1 {
+                font-size: 2.5rem;
+                margin-bottom: 3rem;
+            }
+            
+            .form-container {
+                padding: 2.5rem;
+                max-width: 900px;
+                width: 100%;
+            }
+            
+            form {
+                gap: 2rem;
+            }
+            
+            .form-group h2, .form-group h3 {
+                font-size: 1.125rem;
+            }
+            
+            /* Layout de dos columnas para algunos campos */
+            .form-row {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 1.5rem;
+            }
+            
+            input[type="date"],
+            input[type="text"],
+            textarea {
+                padding: 1rem 1.25rem;
+                font-size: 1.05rem;
+            }
+            
+            textarea {
+                min-height: 140px;
+            }
+            
+            .checkbox-container {
+                padding: 1.25rem;
+            }
+            
+            .btn-primary, .btn-secondary {
+                padding: 1rem 2rem;
+                font-size: 1.05rem;
+            }
+
+            button[type="submit"] {
+                padding: 1.25rem 2.5rem;
+                font-size: 1.125rem;
+                align-self: center;
+                min-width: 200px;
+            }
+        }
+
+        /* ==========================================================================
+        RESPONSIVE DESIGN - DESKTOP Y PANTALLAS GRANDES
+        ========================================================================== */
+
+        @media (min-width: 1024px) {
+            /* Ajustes para el menú lateral */
+            main {
+                margin-left: 355px;
+                margin-right: 50px;
+                padding-bottom: 60px;
+                min-height: calc(100vh - 100px);
+                width: calc(100% - 405px);
+            }
+            
+            main h1 {
+                font-size: 3rem;
+                margin-bottom: 3.5rem;
+            }
+            
+            .form-container {
+                padding: 3rem;
+                border-radius: var(--radius-xl);
+                max-width: 1000px;
+                width: 100%;
+            }
+            
+            form {
+                gap: 2.5rem;
+            }
+            
+            .form-group h2, .form-group h3 {
+                font-size: 1.25rem;
+            }
+            
+            /* Mejores efectos hover en desktop */
+            input[type="date"]:hover,
+            input[type="text"]:hover,
+            textarea:hover {
+                border-color: var(--color-secondary);
+                box-shadow: var(--shadow-sm);
+            }
+            
+            .checkbox-container:hover {
+                background: linear-gradient(135deg, #EEF2FF 0%, #E0E7FF 100%);
+            }
+            
+            /* Botón más prominente */
+            button[type="submit"] {
+                padding: 1.5rem 3rem;
+                font-size: 1.2rem;
+                margin-top: 2rem;
+            }
+            
+            /* Efectos de parallax sutiles */
+            .form-container::after {
+                content: '';
+                position: absolute;
+                top: -50%;
+                right: -50%;
+                width: 200%;
+                height: 200%;
+                background: radial-gradient(circle at center, rgba(108, 126, 244, 0.03) 0%, transparent 70%);
+                pointer-events: none;
+                z-index: -1;
+            }
+        }
+
+        /* ==========================================================================
+        PANTALLAS EXTRA GRANDES
+        ========================================================================== */
+
+        @media (min-width: 1440px) {
+            main {
+                margin-left: 400px;
+                margin-right: 50px;
+                width: calc(100% - 450px);
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .form-container {
+                padding: 4rem;
+                max-width: 1200px;
+            }
+            
+            main h1 {
+                font-size: 3.5rem;
+            }
+        }
+
+        /* ==========================================================================
+        PANTALLAS MUY PEQUEÑAS
+        ========================================================================== */
+
+        @media (max-width: 480px) {
+            main {
+                margin: 10px;
+                min-height: calc(100vh - 70px);
+                width: calc(100% - 20px);
+            }
+            
+            main h1 {
+                font-size: 1.5rem;
+                margin-bottom: 1.5rem;
+            }
+            
+            .form-container {
+                padding: 1.25rem;
+                border-radius: var(--radius-lg);
+                width: 100%;
+            }
+            
+            form {
+                gap: 1.25rem;
+            }
+            
+            .form-group h2, .form-group h3 {
+                font-size: 1rem;
+            }
+            
+            input[type="date"],
+            input[type="text"],
+            textarea {
+                padding: 0.75rem;
+                font-size: 1rem;
+            }
+            
+            textarea {
+                min-height: 100px;
+            }
+            
+            .btn-primary, .btn-secondary {
+                padding: 0.75rem 1.25rem;
+                font-size: 0.95rem;
+            }
+
+            button[type="submit"] {
+                padding: 0.875rem 1.5rem;
+                font-size: 1rem;
+                width: 100%;
+            }
+        }
+
+        /* ==========================================================================
+        MEJORAS DE ACCESIBILIDAD
+        ========================================================================== */
+
+        /* Focus visible mejorado */
+        input:focus-visible,
+        textarea:focus-visible,
+        button:focus-visible {
+            outline: 2px solid var(--color-accent);
+            outline-offset: 2px;
+        }
+
+        /* Reducir movimiento para usuarios que lo prefieren */
+        @media (prefers-reduced-motion: reduce) {
+            * {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+
+        /* Alto contraste */
+        @media (prefers-contrast: high) {
+            :root {
+                --color-border: #000000;
+                --color-text: #000000;
+                --color-text-light: #333333;
+            }
+        }
+
+        /* ==========================================================================
+        UTILIDADES ADICIONALES
+        ========================================================================== */
+
+        .mobile-only {
+            display: block;
+        }
+
+        .desktop-only {
+            display: none;
+        }
+
+        @media (min-width: 1024px) {
+            .mobile-only {
+                display: none;
+            }
+            
+            .desktop-only {
+                display: block;
+            }
+        }
+
+        /* --- ESTILOS ADICIONALES --- */
+
+        #image-container-wrapper {
+            position: relative; /* Necesario para posicionar los recuadros */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 20px auto; /* Centrado */
+            background-color: #f0f0f0; 
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            padding: 10px;
+            overflow: hidden; 
+            max-width: 90vw; 
+            max-height: 80vh; 
+        }
+
+        #main-image {
+            max-width: 100%; 
+            max-height: 75vh; 
+            height: auto; 
+            display: block;
+            border-radius: 4px;
+        }
+
+        #significado_colores {
+            margin-top: 30px;
+            padding: 20px;
+            background-color: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.08);
+            max-width: 400px;
+            margin-left: auto;
+            margin-right: auto;
+            border-top: 4px solid  #3182CE;
+        }
+
+        #significado_colores h2 {
+            font-size: 1.8rem; 
+            color: #333;
+            margin-bottom: 15px; 
+            text-align: center;
+            border-bottom: 2px solid #eee; 
+            padding-bottom: 10px;
+        }
+
+        .color-meaning-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+            font-size: 1.1rem;
+            color: #555;
+        }
+
+        .color-box {
+            width: 25px;
+            height: 25px;
+            border-radius: 50%; 
+            margin-right: 10px;
+            border: 1px solid rgba(0, 0, 0, 0.1); 
+        }
+
+        #info-panel {
+            background-color: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.08);
+            padding: 20px;
+            margin-top: 20px;
+            margin-bottom: 40px;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+            display: none; 
+        }
+
+        #info-panel h2 {
+            color: #3f51b5; 
+            margin-top: 0;
+            font-size: 1.5rem;
+            border-bottom: 1px solid #e0e0e0;
+            padding-bottom: 10px;
+            margin-bottom: 15px;
+        }
+
+        #info-panel p {
+            margin-bottom: 8px;
+            font-size: 1rem;
+        }
+
+        #info-panel p strong {
+            color: #616161;
+        }
+
+        #info-panel #info-unidades-container h3 {
+            color: #3f51b5;
+            margin-top: 20px;
+            margin-bottom: 10px;
+            font-size: 1.3rem;
+            border-bottom: 1px dashed #e0e0e0;
+            padding-bottom: 5px;
+        }
+
+        #info-panel #lista-unidades {
+            list-style: none; 
+            padding: 0;
+            margin: 0;
+        }
+
+        #info-panel #lista-unidades li {
+            background-color: #f9f9f9;
+            border: 1px solid #e0e0e0;
+            border-radius: 4px;
+            padding: 10px;
+            margin-bottom: 5px;
+            font-size: 0.95rem;
+            line-height: 1.4;
+        }
+
+        #info-panel #lista-unidades li strong {
+            color: #424242;
+        }
+
+        .recuadro {
+            position: absolute;
+            border: 2px solid rgba(255, 255, 255, 0.0); 
+            cursor: pointer;
+            transition: border-color 0.2s ease, background-color 0.2s ease;
+            box-sizing: border-box; 
+            background-color: rgba(0, 0, 0, 0); 
+        }
+
+        .recuadro:hover {
+            border-color: rgba(0, 0, 0, 0.5); 
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .recuadro.active {
+            border-color: #3f51b5; 
+            background-color: rgba(63, 81, 181, 0.3); 
+        }
+
+        #dashboard-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+            margin-top: 20px;
+            margin-bottom: 30px;
+        }
+
+        .image-button {
+            padding: 10px 15px;
+            background-color: #64B5F6; 
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background-color 0.2s ease, transform 0.1s ease;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .image-button:hover {
+            background-color: #42A5F5; 
+            transform: translateY(-2px);
+        }
+
+        .image-button.active-button {
+            background-color: #2196F3; 
+            box-shadow: 0 3px 6px rgba(0, 0, 0, 0.2);
+            border: 2px solid #1976D2; 
+        }
+        
+        /* Estilos para el formulario de agregar recuadro */
+        #add-recuadro-form {
+            background-color: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.08);
+            padding: 25px;
+            margin-top: 30px;
+            margin-bottom: 40px;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            border-top: 4px solid  #3182CE;
+        }
+
+        #add-recuadro-form h2 {
+            color: #3f51b5;
+            margin-top: 0;
+            font-size: 1.8rem;
+            border-bottom: 1px solid #e0e0e0;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        #add-recuadro-form .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        #add-recuadro-form label {
+            font-weight: bold;
+            color: #424242;
+            font-size: 0.95rem;
+        }
+
+        #add-recuadro-form input[type="text"],
+        #add-recuadro-form textarea {
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 1rem;
+            width: calc(100% - 22px); /* Para compensar padding y borde */
+        }
+
+        #add-recuadro-form textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        #add-recuadro-form .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 5px;
+        }
+
+        #add-recuadro-form .checkbox-group input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+        }
+
+        #add-recuadro-form .checkbox-group label {
+            font-weight: normal;
+            font-size: 1rem;
+            color: #333;
+        }
+
+        #add-recuadro-form .coordinates-display {
+            background-color: #e8f0fe;
+            border: 1px dashed #a7c8f2;
+            padding: 10px;
+            border-radius: 5px;
+            font-size: 0.9rem;
+            color: #3f51b5;
+            margin-top: 5px;
+            word-break: break-all; /* Rompe palabras largas */
+        }
+
+        #add-recuadro-form button {
+            padding: 12px 20px;
+            background-color: #3182CE; /* Verde para acciones principales */
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1.1rem;
+            transition: background-color 0.2s ease, transform 0.1s ease;
+            margin-top: 15px;
+        }
+
+        #add-recuadro-form button:hover {
+            transform: translateY(-1px);
+        }
+
+        #btn-asignar-coordenadas {
+            background-color: #2196F3; /* Azul para asignar coordenadas */
+            margin-bottom: 10px;
+        }
+
+        #btn-asignar-coordenadas:hover {
+            background-color: #1976D2;
+        }
+
+        .highlight-mode {
+            cursor: crosshair !important; /* Cambia el cursor cuando se está asignando */
+        }
+
+        .highlight-mode #main-image {
+            outline: 3px dashed #FFC107; /* Resalta la imagen cuando está en modo de asignación */
+            outline-offset: 5px;
+            transition: outline 0.2s ease;
+        }
+
+        /* Estilos específicos para recuadros */
+        #image-container-wrapper {
+            position: relative;
+            display: inline-block;
+            margin: 20px;
+        }
+        
+        #image-container {
+            position: relative;
+        }
+        
+        .recuadro {
+            position: absolute;
+            border: 2px solid;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .recuadro:hover {
+            border-width: 3px;
+            z-index: 10;
+        }
+        
+        .color-gray { border-color: rgba(128, 128, 128, 0.3); background-color: rgba(128, 128, 128, 0.3); }
+        .color-green { border-color:rgba(76, 175, 79, 0.53) ; background-color:rgba(76, 175, 79, 0.53);}
+        .color-red { border-color: #f44336; background-color: rgba(244, 67, 54, 0.3); }
+        
+        .rectangulo-temporal {
+            position: absolute;
+            border: 2px dashed #007BFF;
+            pointer-events: none;
+        }

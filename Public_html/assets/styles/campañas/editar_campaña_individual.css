@@ -1,7 +1,7 @@
-<style>
+
         :root {
             --color-primary: #0F1435;
-            --color-secondary:rgb(49, 130, 206);
+            --color-secondary: #3182CE;
             --color-accent: #4F46E5;
             --color-success: #10B981;
             --color-error: #EF4444;
@@ -23,23 +23,13 @@
             --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: var(--color-bg);
-            margin: 0;
-            padding: 0;
-            line-height: 1.6;
-            color: var(--color-text);
-            background-color:rgb(142, 178, 255); /* Color de fondo más claro */
-        }
-
         main {
             margin: 15px;
             padding-bottom: 40px;
             transition: margin-left 0.3s ease;
             min-height: calc(100vh - 80px);
-            justify-content: flex-start;
         }
+
         .feedback-message {
             padding: 1rem;
             border-radius: var(--radius-md);
@@ -47,7 +37,8 @@
             font-weight: 500;
             animation: slideInDown 0.5s ease;
             width: 100%;
-            max-width: 100%;
+            max-width: 1200px;
+            text-align: center;
         }
 
         .feedback-message.success {
@@ -92,7 +83,7 @@
             gap: 0.5rem;
         }
 
-        .form-group h2, .form-group h3 {
+        .form-group h2 {
             font-size: 1rem;
             font-weight: 600;
             color: var(--color-text);
@@ -102,7 +93,7 @@
             gap: 0.5rem;
         }
 
-        .form-group h2::before, .form-group h3::before {
+        .form-group h2::before {
             content: '';
             width: 4px;
             height: 20px;
@@ -148,80 +139,47 @@
         }
 
         /* Checkbox container */
-        .checkbox-container {
+       .checkbox-container {
             display: flex;
             align-items: center;
             gap: 0.75rem;
             padding: 1rem;
             background: linear-gradient(135deg, #F8FAFC 0%, #F1F5F9 100%);
-            border-radius: var(--radius-md);
-            border: 1px solid var(--color-border);
-            transition: var(--transition);
+            border-radius: var(--radius-md, 0.5rem);
+            border: 1px solid var(--color-border, #E5E7EB);
+            transition: var(--transition, all 0.3s ease);
+            margin-top: 0.5rem;
         }
 
         .checkbox-container:hover {
-            border-color: var(--color-secondary);
             transform: translateY(-1px);
+            box-shadow: 0 5px 10px 0 rgba(0, 0, 0, 0.32);
         }
 
-        /* Custom checkbox */
-        input[type="checkbox"] {
-            width: 1.25rem;
-            height: 1.25rem;
-            accent-color: var(--color-accent);
-            cursor: pointer;
-            border-radius: var(--radius-sm);
-        }
-
-        .checkbox-label {
-            font-size: 0.9rem;
-            color: var(--color-text);
+        .checkbox-container label {
+            font-size: 0.95rem;
+            color: var(--color-text, #374151);
             cursor: pointer;
             user-select: none;
             font-weight: 500;
+            display: flex; /* Para alinear el checkbox con el texto */
+            align-items: center;
+            gap: 0.75rem;
+            width: 100%;
         }
 
-        /* Botones generales */
-        .btn-primary, .btn-secondary {
-            border: none;
-            padding: 0.875rem 1.5rem;
-            font-size: 1rem;
-            font-weight: 600;
-            border-radius: var(--radius-md);
+        .checkbox-container input[type="checkbox"] {
+            width: 1.25rem;
+            height: 1.25rem;
+            accent-color: var(--color-accent, #3B82F6);
             cursor: pointer;
-            transition: var(--transition);
-            position: relative;
-            overflow: hidden;
-            box-shadow: var(--shadow-sm);
-            margin-top: 0.5rem;
-            align-self: flex-start; /* Alinea los botones a la izquierda por defecto */
+            flex-shrink: 0; /* Evita que el checkbox se encoja */
         }
 
-        .btn-primary {
-            background-color: #0F1435;
-            color: var(--color-white);
-        }
 
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: var(--shadow-md);
-        }
-
-        .btn-secondary {
-            background-color: var(--color-white);
-            color: var(--color-primary);
-            border: 1px solid var(--color-primary);
-        }
-
-        .btn-secondary:hover {
-            background-color: var(--color-primary);
-            color: var(--color-white);
-            transform: translateY(-2px);
-            box-shadow: var(--shadow-md);
-        }
-
+        /* Botón de envío */
         button[type="submit"] {
-            background-color: #0F1435;
+            background-color: var(--color-primary);
             color: var(--color-white);
             border: none;
             padding: 1rem 2rem;
@@ -232,12 +190,14 @@
             transition: var(--transition);
             position: relative;
             overflow: hidden;
-            margin-top: 1rem;
+
             box-shadow: var(--shadow-md);
             width: 100%; /* Asegura que el botón de submit sea ancho completo */
+            
         }
 
         button[type="submit"]:hover {
+            background-color: var(--color-secondary);
             transform: translateY(-2px);
             box-shadow: var(--shadow-xl);
         }
@@ -253,7 +213,6 @@
             left: -100%;
             width: 100%;
             height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
             transition: left 0.5s;
         }
 
@@ -261,84 +220,6 @@
             left: 100%;
         }
 
-        /* Divisor */
-        .section-divider {
-            border: 0;
-            border-top: 2px dashed var(--color-border);
-            width: 100%;
-        }
-
-        .section-header {
-            font-size: 1.5rem;
-            font-weight: 700;
-            color: var(--color-primary);
-            margin-bottom: 1.5rem;
-            text-align: center;
-            position: relative;
-        }
-
-        .section-header::after {
-            content: '';
-            display: block;
-            width: 80px;
-            height: 4px;
-            background-color: var(--color-secondary);
-            margin: 10px auto 0;
-            border-radius: 2px;
-        }
-
-        /* Estilos para los carros y personas */
-        .carro-item {
-            background-color: #F8FAFC;
-            border: 1px solid var(--color-border);
-            border-radius: var(--radius-md);
-            padding: 1.25rem;
-            margin-bottom: 1.5rem;
-            box-shadow: var(--shadow-sm);
-            transition: var(--transition);
-        }
-        
-        .carro-item:hover {
-            border-color: var(--color-secondary);
-            transform: translateY(-1px);
-        }
-
-        .carro-item .form-group {
-            margin-bottom: 1rem;
-        }
-
-        .personas-container {
-            margin-top: 1rem;
-            margin-bottom: 1.5rem;
-            padding-left: 1rem;
-            border-left: 3px solid var(--color-secondary);
-        }
-
-        .persona-item {
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-            margin-bottom: 0.75rem;
-        }
-
-        .persona-item input {
-            flex-grow: 1;
-        }
-
-        .btn-remove {
-            background-color: var(--color-error);
-            color: var(--color-white);
-            border: none;
-            padding: 0.5rem 0.75rem;
-            font-size: 0.875rem;
-            border-radius: var(--radius-sm);
-            cursor: pointer;
-            transition: background-color 0.3s ease;
-        }
-
-        .btn-remove:hover {
-            background-color: #D32F2F;
-        }
 
         /* Animaciones */
         @keyframes slideInDown {
@@ -392,51 +273,46 @@
                 max-width: none;
                 width: calc(100% - 60px);
             }
-            
+
             main h1 {
                 font-size: 2.5rem;
                 margin-bottom: 3rem;
             }
-            
+
             .form-container {
                 padding: 2.5rem;
                 max-width: 900px;
                 width: 100%;
             }
-            
+
             form {
                 gap: 2rem;
             }
-            
-            .form-group h2, .form-group h3 {
+
+            .form-group h2 {
                 font-size: 1.125rem;
             }
-            
+
             /* Layout de dos columnas para algunos campos */
             .form-row {
                 display: grid;
                 grid-template-columns: 1fr 1fr;
                 gap: 1.5rem;
             }
-            
+
             input[type="date"],
             input[type="text"],
             textarea {
                 padding: 1rem 1.25rem;
                 font-size: 1.05rem;
             }
-            
+
             textarea {
                 min-height: 140px;
             }
-            
+
             .checkbox-container {
                 padding: 1.25rem;
-            }
-            
-            .btn-primary, .btn-secondary {
-                padding: 1rem 2rem;
-                font-size: 1.05rem;
             }
 
             button[type="submit"] {
@@ -460,27 +336,27 @@
                 min-height: calc(100vh - 100px);
                 width: calc(100% - 405px);
             }
-            
+
             main h1 {
                 font-size: 3rem;
                 margin-bottom: 3.5rem;
             }
-            
+
             .form-container {
                 padding: 3rem;
                 border-radius: var(--radius-xl);
                 max-width: 1000px;
                 width: 100%;
             }
-            
+
             form {
                 gap: 2.5rem;
             }
-            
-            .form-group h2, .form-group h3 {
+
+            .form-group h2 {
                 font-size: 1.25rem;
             }
-            
+
             /* Mejores efectos hover en desktop */
             input[type="date"]:hover,
             input[type="text"]:hover,
@@ -488,18 +364,15 @@
                 border-color: var(--color-secondary);
                 box-shadow: var(--shadow-sm);
             }
-            
-            .checkbox-container:hover {
-                background: linear-gradient(135deg, #EEF2FF 0%, #E0E7FF 100%);
-            }
-            
+
+
             /* Botón más prominente */
             button[type="submit"] {
                 padding: 1.5rem 3rem;
                 font-size: 1.2rem;
                 margin-top: 2rem;
             }
-            
+
             /* Efectos de parallax sutiles */
             .form-container::after {
                 content: '';
@@ -520,21 +393,9 @@
 
         @media (min-width: 1440px) {
             main {
-                margin-left: 400px;
-                margin-right: 50px;
-                width: calc(100% - 450px);
                 display: flex;
                 flex-direction: column;
                 align-items: center;
-            }
-            
-            .form-container {
-                padding: 4rem;
-                max-width: 1200px;
-            }
-            
-            main h1 {
-                font-size: 3.5rem;
             }
         }
 
@@ -548,40 +409,35 @@
                 min-height: calc(100vh - 70px);
                 width: calc(100% - 20px);
             }
-            
+
             main h1 {
                 font-size: 1.5rem;
                 margin-bottom: 1.5rem;
             }
-            
+
             .form-container {
                 padding: 1.25rem;
                 border-radius: var(--radius-lg);
                 width: 100%;
             }
-            
+
             form {
                 gap: 1.25rem;
             }
-            
-            .form-group h2, .form-group h3 {
+
+            .form-group h2 {
                 font-size: 0.95rem;
             }
-            
+
             input[type="date"],
             input[type="text"],
             textarea {
                 padding: 0.75rem;
                 font-size: 1rem;
             }
-            
+
             textarea {
                 min-height: 100px;
-            }
-            
-            .btn-primary, .btn-secondary {
-                padding: 0.75rem 1.25rem;
-                font-size: 0.95rem;
             }
 
             button[type="submit"] {
@@ -638,16 +494,16 @@
             .mobile-only {
                 display: none;
             }
-            
+
             .desktop-only {
                 display: block;
             }
         }
 
-        #agregar_campana_titulo {
+        #editar_campana {
             font-size: clamp(1.6rem, 4vw, 2.5rem);
             margin-bottom: 30px;
-            color:  #2D3748;
+            color: #2D3748;
             font-weight: 700;
             position: relative; /* Para la línea decorativa */
             padding-bottom: 10px;
@@ -656,7 +512,7 @@
             margin-top: 30px;
         }
 
-        #agregar_campana_titulo::after {
+        #editar_campana::after {
             content: '';
             position: absolute;
             left: 0;
@@ -666,4 +522,79 @@
             background-color: var(--color-secondary);
             border-radius: 2px;
         }
-    </style>
+
+        .custom-radio {
+            display: none;
+        }
+        .check {
+    cursor: pointer;
+    position: relative;
+    width: 22px;
+    height: 22px;
+    -webkit-tap-highlight-color: transparent;
+    transform: translate3d(0, 0, 0);
+}
+
+.check:before {
+    content: "";
+    position: absolute;
+    top: -15px;
+    left: -15px;
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+}
+
+.check svg {
+    position: relative;
+    z-index: 1;
+    fill: none;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke: #c8ccd4;
+    stroke-width: 1.5;
+    transform: translate3d(0, 0, 0);
+    transition: all 0.2s ease;
+}
+
+.check svg path {
+    stroke-dasharray: 60;
+    stroke-dashoffset: 0;
+}
+
+.check svg polyline {
+    stroke-dasharray: 22;
+    stroke-dashoffset: 66;
+}
+
+.check:hover:before {
+    opacity: 1;
+}
+
+.check:hover svg {
+    stroke: #3498db;
+}
+
+/* ✅ Aplica a todos los inputs con .custom-radio que estén checked */
+input.custom-radio:checked + .check svg {
+    stroke: #2ecc71;
+}
+
+input.custom-radio:checked + .check svg path {
+    stroke-dashoffset: 60;
+    transition: all 0.3s linear;
+}
+
+input.custom-radio:checked + .check svg polyline {
+    stroke-dashoffset: 42;
+    transition: all 0.2s linear;
+    transition-delay: 0.15s;
+}
+
+/* Estilo visual cuando se selecciona el contenedor (opcional) */
+.radio-option.selected {
+    background-color: rgba(46, 204, 113, 0.15);
+    border: 1px solid rgba(46, 204, 113, 0.3);
+}
