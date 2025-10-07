@@ -75,7 +75,7 @@ try {
     <div class="page-container">
         <main>
             <div id="botones">
-                <button data-aos="zoom-in" data-aos-delay="200"><a href="#anuncios"><img src="./assets/img/anuncio_icon.png" alt="">Anuncios</a></button>
+                <button data-aos="zoom-in" data-aos-delay="200"><a href="#anuncios"><img src="./assets/img/anuncio_icon.png" alt="">Anuncioss</a></button>
                 <button data-aos="zoom-in" data-aos-delay="300"><a href="#eventos"><img src="./assets/img/evento_icon.png" alt="">Eventos</a></button>
             </div>
 
