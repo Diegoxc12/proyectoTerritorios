@@ -188,7 +188,7 @@
 
     /* Estilos para el botón de descarga */
     .download-btn {
-        display: inline-block;
+        display: inline-lock;
         background-color: var(--color-primary);
         color: white;
         padding: 10px 15px;
@@ -436,7 +436,7 @@
         justify-content: center;
         gap: 8px; /* Espacio entre ícono y texto */
         width: 100%;
-
+        display: none;
     }
 
     .download-btn:hover {

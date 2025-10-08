@@ -22,43 +22,45 @@ $mensaje_bienvenida = "Territorios";
 
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Territorios</title>
     <link rel="stylesheet" href="../assets/styles/predicacion/territorios.css">
 </head>
+
 <body>
     <div id="menu_overlay"></div>
 
-    <?php include('../includes/header_menu.php');?>
+    <?php include('../includes/header_menu.php'); ?>
 
-    
+
 
     <div class="page-container">
         <main>
             <div id="botones">
                 <button class="download-btn" data-aos="zoom-in" data-aos-delay="200">
-                <img src="../assets/img/download_icon.png" alt="" style="height: 20px; vertical-align: middle; margin-right: 8px;"><a href="./descargar_reporte_t.php" style="text-decoration: none; color: inherit;">Descargar reporte de Territorios</a>
-                
+                    <img src="../assets/img/download_icon.png" alt="" style="height: 20px; vertical-align: middle; margin-right: 8px;"><a href="./descargar_reporte_t.php" style="text-decoration: none; color: inherit;">Descargar reporte de Territorios</a>
+
                 </button>
 
-        </div>
+            </div>
             <div class="territorio-button-container">
-        <?php
-        for ($i = 1; $i <= 84; $i++) {
-            echo '<div class="content-grid">';
-            echo '<button class="btn-grupos" data-aos="fade-up" data-aos-delay="200" data-id-imagen="' . $i . '">' . $i . '</button>';
+                <?php
+                for ($i = 1; $i <= 84; $i++) {
+                    echo '<div class="content-grid">';
+                    echo '<button class="btn-grupos" data-aos="fade-up" data-aos-delay="200" data-id-imagen="' . $i . '">' . $i . '</button>';
 
-            echo '</div>';
-        }
-        ?>
+                    echo '</div>';
+                }
+                ?>
             </div>
         </main>
     </div>
 
-    
-    
+
+
     <script>
         const territorioLinkButtons = document.querySelectorAll('.btn-grupos');
         territorioLinkButtons.forEach(button => {
@@ -72,8 +74,7 @@ $mensaje_bienvenida = "Territorios";
             });
         });
     </script>
-    
+
 </body>
 
 </html>
-
