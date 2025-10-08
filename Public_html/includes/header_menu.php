@@ -23,9 +23,9 @@ $pagina_actual = basename($_SERVER['PHP_SELF']);
     <div id="menu_overlay"></div>
 
     <header>
-        <img id="logo_header" src="../assets/img/Menu_icon1.png" alt="Logo menú">
+        <img id="logo_header" src="../assets/img/menu_icon1.png" alt="Logo menú">
         <h2 id="header_bienvenida">
-            Totoracocha
+            Totoracocha Norte
         </h2>
     </header>
 
